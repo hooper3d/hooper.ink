@@ -62,7 +62,6 @@ button:disabled { cursor:wait; opacity:.45; }
 .site-icon.github-icon img { background:#EDF2F8; padding:2px; }
 .site-copy { min-width:0; flex:1; }
 .site-title { display:flex; align-items:center; gap:7px; }
-.new-mark { width:5px; height:5px; flex-shrink:0; border-radius:50%; background:var(--accent); opacity:.8; }
 .site-copy h2 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:16px; line-height:24px; font-weight:600; letter-spacing:-.35px; }
 .site-copy h2 { transition:color 160ms; }
 .site-card:hover h2,.site-card:focus-within h2 { color:var(--accent); }
@@ -76,7 +75,8 @@ button:disabled { cursor:wait; opacity:.45; }
 #categoryFilters .category-menu button { display:block; width:100%; text-align:left; }
 .favorite-button { position:absolute; right:5px; top:26px; width:30px; height:30px; border-radius:7px; color:var(--muted); opacity:.85; font-size:13px; }
 .favorite-button:hover,.favorite-button:focus-visible { background:var(--selected); opacity:1; }
-.favorite-button[aria-pressed="true"] { color:var(--accent); opacity:1; }
+.favorite-button[aria-pressed="true"] { color:#D97706; opacity:1; }
+.dark .favorite-button[aria-pressed="true"] { color:#F5A34A; }
 #emptyState { min-height:300px; text-align:center; padding:64px 20px; color:var(--muted); }
 #emptyState>i { font-size:24px; margin-bottom:16px; }
 #emptyState h2 { color:var(--text); font-size:17px; font-weight:600; }
@@ -111,7 +111,6 @@ dialog h2 { font-size:18px; } dialog p { margin:16px 0 24px; font-size:14px; }
   .site-title { justify-content:center; gap:3px; }
   .site-copy h2 { font-size:12px; line-height:18px; font-weight:500; letter-spacing:0; }
   .site-copy p { display:none; }
-  .new-mark { width:3px; height:3px; }
   .favorite-button { display:none; }
   body #desktopDock { min-height:76px; }
   footer { flex-wrap:wrap; justify-content:center; padding:12px 16px; }

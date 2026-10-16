@@ -6,6 +6,16 @@
 
 从仓库根目录启动：`node preview-original/serve.cjs`。原站 18866、React Flow 深浅两版 18867 及配色样例 18868 保留。本目录独立运行，不替换 `public/index.html`，不修改线上。
 
+### 本地后台预览
+
+首次安装并启动：`powershell.exe -NoProfile -File scripts/local-preview.ps1 -Install`。Windows 计划任务 `Hooper-Navi-Preview` 使用当前用户的普通权限，在登录 Windows 时自动运行，不依赖开发终端。仅监听 `127.0.0.1:18869`，沿用 `preview-original/.local` 数据。
+
+后台启动器明确开启本机免登录，直接显示头像、管理入口和 Dock，不改写密码或登录会话文件，写入仍验证来源及 CSRF。普通 `node preview-original/serve.cjs` 启动继续要求登录；生产模式拒绝开启免登录。本机免登录只接受回环地址连接及匹配的 localhost / 127.0.0.1 主机头。
+
+预览进程退出后 5 秒自动重启；托管脚本异常退出由计划任务间隔 1 分钟重试。日志在 `preview-original/.local/runtime/`：`supervisor.log` 记录启动、退出码和重启，`stdout.log` / `stderr.log` 记录程序输出。程序每次重启保留前三份输出日志；托管日志超过 1 MB 时轮换，运行状态保存在 `state.json`。这些文件不提交 Git。
+
+查看状态：`Get-ScheduledTask -TaskName Hooper-Navi-Preview`。手动停止：`Stop-ScheduledTask -TaskName Hooper-Navi-Preview`；再次启动：`Start-ScheduledTask -TaskName Hooper-Navi-Preview`。电脑关机或用户注销后不继续运行，下次登录 Windows 自动启动。本地托管不修改线上部署。
+
 品牌字样 `Hooper Navi` 已将 Proxima Nova ExtraBold Italic 转为独立 SVG 路径：`assets/hooper-navi-wordmark.svg`（约 3 KB）。保留原字距和约 101×22px 尺寸，随标题字号响应缩放，使用 CSS 遮罩跟随深浅主题颜色。SVG 无字体、文字节点或外部资源依赖，不再调用本机字体，也没有把原字体文件复制到仓库。原图标仍为 24×24，其余页面字体保持不变；标题和首页链接保留无障碍名称。
 
 ## 本地音乐试用

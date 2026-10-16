@@ -7,8 +7,10 @@ const scrypt = promisify(crypto.scrypt), root = __dirname;
 const passwordOptions = {N:131072, r:8, p:1, maxmem:256 * 1024 * 1024};
 const loginWindow = 10 * 60 * 1000;
 const sessionSeconds = 30 * 24 * 3600;
-function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins = []} = {}) {
+function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins = [], localAutoLogin = false} = {}) {
   const production = publicOrigins.length > 0;
+  if (production && localAutoLogin) throw Error('Local auto-login cannot be enabled in production');
+  const localSession = localAutoLogin ? {expires:Infinity, csrf:crypto.randomBytes(32).toString('hex')} : null;
   const allowedOrigins = publicOrigins.map(value => {
     const url = new URL(value);
     if (url.protocol !== 'https:' || url.origin !== value) throw Error('Production origins must be HTTPS origins');
@@ -99,17 +101,18 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
     const port = server.address().port;
     const publicOrigin = allowedOrigins.find(url => url.host === req.headers.host);
     if (production ? !publicOrigin : ![`127.0.0.1:${port}`, `localhost:${port}`].includes(req.headers.host)) { reply(res, 403, {error:'主机不匹配'}); return; }
+    if (localAutoLogin && !['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress)) { reply(res, 403, {error:'免登录仅限本机预览'}); return; }
     const origin = production ? publicOrigin.origin : `http://${req.headers.host}`;
     let name;
     try { name = decodeURIComponent(new URL(req.url, origin).pathname); } catch { reply(res, 400, {error:'地址无效'}); return; }
     const cookieName = production ? '__Host-hooper_admin' : `hooper_admin_${port}`;
     const cookie = (req.headers.cookie || '').split(';').map(value => value.trim()).find(value => value.startsWith(cookieName + '='))?.slice(cookieName.length + 1);
-    const id = sessionKey(cookie), session = sessions.get(id);
+    const id = sessionKey(cookie), session = localSession || sessions.get(id);
     if (session && session.expires <= Date.now()) sessions.delete(id);
     const loggedIn = session && session.expires > Date.now();
     try {
       if (name.startsWith('/api/')) {
-        if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth, authenticated:!!loggedIn, ...(loggedIn ? {csrf:session.csrf} : !auth && !production ? {setupToken} : {})}); return; }
+        if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth || localAutoLogin, authenticated:!!loggedIn, ...(localAutoLogin ? {localPreview:true} : {}), ...(loggedIn ? {csrf:session.csrf} : !auth && !production ? {setupToken} : {})}); return; }
         if (req.method === 'GET' && name === '/api/navigation') { reply(res, 200, navigation); return; }
         if (name === '/api/notes' || name.startsWith('/api/note-images')) {
           if (!loggedIn) throw error(401, '请先登录');
@@ -185,6 +188,7 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
           reply(res, 200, note); return;
         }
         if (req.method === 'POST' && name === '/api/logout') {
+          if (localAutoLogin) throw error(403, '本地免登录模式无需退出');
           const next = new Map(sessions); next.delete(id); saveSessions(next);
           res.setHeader('Set-Cookie', `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${production?'; Secure':''}`);
           reply(res, 200, {authenticated:false, configured:true}); return;
