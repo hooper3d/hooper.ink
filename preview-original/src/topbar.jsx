@@ -25,7 +25,7 @@ function Topbar(){
   const {weather,weatherError,weatherLoading,reloadWeather}=useWeather();
   const [open,setOpen]=useState(null),[now,setNow]=useState(new Date()),[dark,setDark]=useState(document.documentElement.classList.contains('dark'));
   const [session,setSession]=useState(null),[privateDirty,setPrivateDirty]=useState(false);
-  useEffect(()=>{if(!session?.authenticated&&open==='notes')setOpen(null)},[session?.authenticated,open]);
+  useEffect(()=>{if(!session?.authenticated&&open&&open!=='weather')setOpen(null)},[session?.authenticated,open]);
   const weatherTrigger=useRef(null),calendarTrigger=useRef(null),weatherPanelRef=useRef(null),calendarPanelRef=useRef(null);
   useEffect(()=>{
     const observer=new MutationObserver(()=>setDark(document.documentElement.classList.contains('dark')));
@@ -64,7 +64,7 @@ function Topbar(){
       <div className="topbar-trigger date-trigger" aria-label={`${dateFormat.format(now)} 农历${lunarLabel(key,true)} 北京时间${timeFormat.format(now)}`}><span className="header-clock">{timeFormat.format(now)}</span><span className="header-date">{dateFormat.format(now)}</span><span className="compact-date">{Number(key.slice(5,7))}/{Number(key.slice(8))}</span><span className="header-lunar">{lunarLabel(key,true)}</span></div>
       {createPortal(<NavigationManager session={session} onSessionChange={setSession} privateDirty={privateDirty}/>,document.getElementById('accountTools'))}
     </div>
-    {createPortal(<Dock className="hooper-dock" theme={dark?'dark':'light'} items={dockItems} baseItemSize={42} magnification={42} panelHeight={60} gap={16} roundness={.55} bounce={false} showBadges={false} style={{width:dockItems.length*54+(dockItems.length-1)*16+18,'--dock-panel':'var(--surface)','--dock-panel-edge':'var(--line)','--dock-panel-highlight':'var(--hover)','--dock-panel-shadow':'0 8px 28px #17213118','--dock-tile':'var(--icon-bg)','--dock-tile-edge':'var(--line)','--dock-tile-highlight':'var(--hover)','--dock-tile-shadow':'none','--dock-ink':'var(--text)','--dock-label':'var(--surface)','--dock-label-ink':'var(--text)','--dock-dot':'var(--accent)'}}/>,document.getElementById('desktopDock'))}
+    {session?.authenticated&&createPortal(<Dock className="hooper-dock" theme={dark?'dark':'light'} items={dockItems} baseItemSize={42} magnification={42} panelHeight={60} gap={16} roundness={.55} bounce={false} showBadges={false} style={{width:dockItems.length*54+(dockItems.length-1)*16+18,'--dock-panel':'var(--surface)','--dock-panel-edge':'var(--line)','--dock-panel-highlight':'var(--hover)','--dock-panel-shadow':'0 8px 28px #17213118','--dock-tile':'var(--icon-bg)','--dock-tile-edge':'var(--line)','--dock-tile-highlight':'var(--hover)','--dock-tile-shadow':'none','--dock-ink':'var(--text)','--dock-label':'var(--surface)','--dock-label-ink':'var(--text)','--dock-dot':'var(--accent)'}}/>,document.getElementById('desktopDock'))}
   </ConfigProvider>;
 }
 createRoot(document.getElementById('topbarTools')).render(<Topbar/>);
