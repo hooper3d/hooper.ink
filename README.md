@@ -15,4 +15,4 @@ node preview-original/serve.cjs
 
 管理密码、私人便笺与附件位于 `preview-original/.local/`，不入 Git。依赖目录、临时文件及原站交易运行数据也不入库。音乐文件只保存在浏览器中，不上传服务器或提交到 Git。
 
-本次提交不代表已部署；精修版服务仍仅支持本机预览，正式发布需要单独完成生产域名、HTTPS 和持久数据配置。
+本地运行继续使用 `serve.cjs`；生产入口、HTTPS 与持久数据配置见 [自有服务器发布说明](deploy/README.md)。Git 提交本身不触发部署。

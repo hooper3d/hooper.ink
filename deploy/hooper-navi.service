@@ -1,0 +1,24 @@
+[Unit]
+Description=Hooper Navi website and private tools
+After=network.target
+
+[Service]
+Type=simple
+User=agentuser
+Group=agentuser
+WorkingDirectory=/home/agentuser/nav/current/preview-original
+ExecStart=/usr/bin/node production.cjs
+Environment=NODE_ENV=production
+Environment=PORT=18871
+Environment=NAV_DATA_DIR=/home/agentuser/nav/shared/navi-data
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/agentuser/nav/shared/navi-data
+
+[Install]
+WantedBy=multi-user.target

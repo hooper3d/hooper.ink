@@ -4,7 +4,13 @@ const {promisify} = require('node:util');
 const {validateNavigation} = require('./navigation-model.cjs');
 const {emptyDocument, validateNote, imagePath} = require('./notes-model.cjs');
 const scrypt = promisify(crypto.scrypt), root = __dirname;
-function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
+function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins = []} = {}) {
+  const production = publicOrigins.length > 0;
+  const allowedOrigins = publicOrigins.map(value => {
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || url.origin !== value) throw Error('Production origins must be HTTPS origins');
+    return url;
+  });
   fs.mkdirSync(dataDir, {recursive:true});
   const navFile = path.join(dataDir, 'navigation.json'), authFile = path.join(dataDir, 'auth.json');
   const noteFile = path.join(dataDir, 'notes.json'), imageDir = path.join(dataDir, 'note-images');
@@ -19,6 +25,7 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
   let note = fs.existsSync(noteFile) ? JSON.parse(fs.readFileSync(noteFile, 'utf8')) : {revision:0, document:emptyDocument(), updatedAt:null};
   validateNote(note.document);
   let auth = fs.existsSync(authFile) ? JSON.parse(fs.readFileSync(authFile, 'utf8')) : null;
+  if (production && !auth) throw Error('Production requires an existing owner password');
   const sessions = new Map(), failures = new Map(), setupToken = crypto.randomBytes(32).toString('hex');
   let setupBusy = false;
   const error = (status, message) => Object.assign(Error(message), {status});
@@ -38,7 +45,7 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
   function startSession(res, port) {
     const token = crypto.randomBytes(32).toString('hex'), csrf = crypto.randomBytes(32).toString('hex');
     sessions.set(token, {expires:Date.now() + 8 * 3600 * 1000, csrf});
-    res.setHeader('Set-Cookie', `hooper_admin_${port}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800`);
+    res.setHeader('Set-Cookie', `${production?'__Host-hooper_admin':`hooper_admin_${port}`}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${production?'; Secure':''}`);
     return {authenticated:true, configured:true, csrf};
   }
   const server = http.createServer(async (req, res) => {
@@ -46,18 +53,19 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     const port = server.address().port;
-    if (![`127.0.0.1:${port}`, `localhost:${port}`].includes(req.headers.host)) { reply(res, 403, {error:'主机不匹配'}); return; }
-    const origin = `http://${req.headers.host}`;
+    const publicOrigin = allowedOrigins.find(url => url.host === req.headers.host);
+    if (production ? !publicOrigin : ![`127.0.0.1:${port}`, `localhost:${port}`].includes(req.headers.host)) { reply(res, 403, {error:'主机不匹配'}); return; }
+    const origin = production ? publicOrigin.origin : `http://${req.headers.host}`;
     let name;
     try { name = decodeURIComponent(new URL(req.url, origin).pathname); } catch { reply(res, 400, {error:'地址无效'}); return; }
-    const cookieName = `hooper_admin_${port}`;
+    const cookieName = production ? '__Host-hooper_admin' : `hooper_admin_${port}`;
     const cookie = (req.headers.cookie || '').split(';').map(value => value.trim()).find(value => value.startsWith(cookieName + '='))?.slice(cookieName.length + 1);
     const session = sessions.get(cookie);
     if (session && session.expires <= Date.now()) sessions.delete(cookie);
     const loggedIn = session && session.expires > Date.now();
     try {
       if (name.startsWith('/api/')) {
-        if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth, authenticated:!!loggedIn, ...(loggedIn ? {csrf:session.csrf} : !auth ? {setupToken} : {})}); return; }
+        if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth, authenticated:!!loggedIn, ...(loggedIn ? {csrf:session.csrf} : !auth && !production ? {setupToken} : {})}); return; }
         if (req.method === 'GET' && name === '/api/navigation') { reply(res, 200, navigation); return; }
         if (name === '/api/notes' || name.startsWith('/api/note-images')) {
           if (!loggedIn) throw error(401, '请先登录');
@@ -75,6 +83,7 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
         if (req.method === 'POST' && ['/api/setup', '/api/login'].includes(name)) {
           const input = await readBody(req);
           if (name === '/api/setup') {
+            if (production) throw error(403, '线上不开放密码初始化');
             if (auth || setupBusy) throw error(409, '管理密码已设置');
             if (!same(input.setupToken, setupToken)) throw error(403, '初始化凭据无效');
             if (typeof input.password !== 'string' || input.password.length < 10 || input.password.length > 128) throw error(400, '密码需为 10–128 位');
@@ -87,7 +96,8 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
             reply(res, 201, startSession(res, port)); return;
           }
           if (!auth) throw error(409, '请先设置管理密码');
-          const address = req.socket.remoteAddress, failed = failures.get(address);
+          const address = production && typeof req.headers['x-real-ip'] === 'string' ? req.headers['x-real-ip'].slice(0,64) : req.socket.remoteAddress, failed = failures.get(address);
+          for (const [ip, value] of failures) if (value.until <= Date.now()) failures.delete(ip);
           if (failed && failed.until > Date.now() && failed.count >= 5) throw error(429, '尝试过多，请 10 分钟后重试');
           failures.set(address, {count:failed && failed.until > Date.now() ? failed.count + 1 : 1, until:failed && failed.until > Date.now() ? failed.until : Date.now() + 600000});
           if (typeof input.password !== 'string' || input.password.length > 128) throw error(401, '密码不正确');
@@ -128,7 +138,7 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
         }
         if (req.method === 'POST' && name === '/api/logout') {
           sessions.delete(cookie);
-          res.setHeader('Set-Cookie', `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`);
+          res.setHeader('Set-Cookie', `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${production?'; Secure':''}`);
           reply(res, 200, {authenticated:false, configured:true}); return;
         }
         if (req.method === 'PUT' && name === '/api/navigation') {
@@ -154,7 +164,7 @@ function createPreviewServer({dataDir = path.join(root, '.local')} = {}) {
       if (!file.startsWith(root + path.sep) || name.split('/').includes('..')) throw error(404, 'Not found');
       const types = {'.html':'text/html; charset=utf-8', '.js':'application/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.txt':'text/plain; charset=utf-8'};
       if (!types[path.extname(file)]) throw error(404, 'Not found');
-      fs.readFile(file, (err, data) => { if (err) { reply(res, 404, {error:'Not found'}); return; } res.setHeader('Content-Type', types[path.extname(file)]); res.end(req.method === 'HEAD' ? '' : data); });
+      fs.readFile(file, (err, data) => { if (err) { reply(res, 404, {error:'Not found'}); return; } if (production && name === '/index.html') data = Buffer.from(data.toString('utf8').replace(/\s*<meta name="robots" content="noindex, nofollow">/, '')); res.setHeader('Content-Type', types[path.extname(file)]); res.end(req.method === 'HEAD' ? '' : data); });
     } catch (e) { reply(res, e.status || 500, {error:e.status ? e.message : '保存服务暂不可用'}); }
   });
   return server;
