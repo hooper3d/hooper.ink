@@ -49,6 +49,7 @@ function Topbar(){
   </section>;
   const calendarPanel=<section ref={calendarPanelRef} className="topbar-panel calendar-panel" role="dialog" aria-label="日历"><CalendarPanel key={key}/></section>;
   const dockItems=[
+    {id:'video',label:'影视',icon:<i className="fas fa-tv" aria-hidden="true"/>,onClick:()=>window.open('https://tv.hooper.ink/','_blank','noopener,noreferrer')},
     {id:'music',label:'音乐',icon:<i className="fas fa-music" aria-hidden="true"/>,active:open==='music',renderItem:button=><MusicPlayer triggerElement={button} open={open==='music'} onOpenChange={value=>setOpen(value?'music':null)}/>},
     ...(session?.authenticated?[{id:'notes',label:'随手记',icon:<i className="fas fa-note-sticky" aria-hidden="true"/>,active:open==='notes',renderItem:button=><PrivateNotes triggerElement={button} session={session} onSessionChange={setSession} onDirtyChange={setPrivateDirty} open={open==='notes'} onOpenChange={value=>setOpen(value?'notes':null)}/>}]:[]),
     {id:'calendar',label:'日历',icon:<i className="far fa-calendar" aria-hidden="true"/>,active:open==='calendar',renderItem:button=><Popover open={open==='calendar'} onOpenChange={value=>setOpen(value?'calendar':null)} afterOpenChange={value=>{if(value)calendarPanelRef.current?.querySelector('.calendar-cell.selected')?.focus()}} trigger="click" placement="top" arrow={false} content={calendarPanel}>{React.cloneElement(button,{ref:node=>{button.props.ref(node);calendarTrigger.current=node},'aria-haspopup':'dialog','aria-expanded':open==='calendar'})}</Popover>}

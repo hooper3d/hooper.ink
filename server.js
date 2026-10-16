@@ -45,6 +45,12 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (host === 'tv.hooper.ink' && !req.url.startsWith('/.well-known/acme-challenge/')) {
+    res.writeHead(301, { 'Location': `https://tv.hooper.ink${req.url}`, 'Cache-Control': 'no-store' });
+    res.end();
+    return;
+  }
+
   // Strip query string from URL for file serving
   const urlPath = req.url.split('?')[0];
   let filePath = path.join(PUBLIC_DIR, urlPath === '/' ? 'index.html' : urlPath);
