@@ -2,6 +2,8 @@
 
 目标为现有 `https://hooper.ink/`，不使用 Sites 托管。Node 22 在 127.0.0.1:18871 提供精修版，Nginx 终结 HTTPS；仅首页、根资源和本站 API 转发到新服务。博客、日报、模拟盘、交易代理和 Hermes API 继续使用原配置。
 
+公网 HTTP 80 仍由旧 Node 8080 服务接收，更新 Nginx 443 不会替换它。`server.js` 必须将 hooper.ink 和 www.hooper.ink 的 HTTP 请求按原路径跳转 HTTPS，并保留 `/.well-known/acme-challenge/` 例外；发布时同步旧服务的入口文件并验证四种 HTTP/HTTPS 地址，避免 HTTP 持续展示旧静态首页。
+
 `production.cjs` 复用本地服务的校验与存储逻辑，仅接受 hooper.ink / www.hooper.ink 的 HTTPS Origin。会话使用 Secure、HttpOnly、SameSite=Strict、Host 前缀 Cookie；写入仍检查来源、会话、CSRF 和版本。线上不开放首次密码初始化，启动前必须已有站主密码哈希。本地启动命令和本地 Cookie 保持兼容。公网模式依赖受信任 Nginx 覆盖 X-Real-IP，新服务不得监听公网。
 
 ## 目录

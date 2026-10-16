@@ -91,6 +91,8 @@ function render() {
 function clearQuery() { searchInput.value = ''; searchQuery = ''; render(); searchInput.focus(); }
 function syncSearchMode() {
   const site = searchMode.value === 'site';
+  document.getElementById('searchModeIcon').dataset.mode = searchMode.value;
+  searchMode.title = site ? '本站搜索' : 'Google 搜索';
   searchInput.placeholder = site ? '搜索本站…' : '搜索…';
   searchInput.setAttribute('aria-label', site ? '搜索站内网站' : 'Google 搜索');
   searchSubmit.setAttribute('aria-label', site ? '查找站内网站' : 'Google 搜索');

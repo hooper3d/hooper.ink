@@ -26,6 +26,22 @@
 .topbar-panel header { display:flex; justify-content:space-between; align-items:center; }
 .topbar-panel header strong { font-size:15px; font-weight:600; }
 .panel-actions { display:flex; gap:4px; }
+.calculator-panel { width:min(312px,calc(100vw - 52px)); color:var(--text); }
+.calculator-panel header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.calculator-panel header strong { font-size:14px; font-weight:600; }
+.calculator-input { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--text); font:400 16px Inter,"Noto Sans SC",sans-serif; }
+.calculator-input::placeholder { color:var(--muted); }
+.calculator-input:focus { outline:1px solid var(--focus); outline-offset:1px; }
+.calculator-result { width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; padding:18px 10px 6px; text-align:left; border-radius:8px; color:var(--text); }
+.calculator-result:not(:disabled):hover { background:var(--hover); }
+.calculator-result>span { min-width:0; overflow-wrap:anywhere; font-size:32px; font-weight:500; font-variant-numeric:tabular-nums; line-height:1.3; }
+.calculator-result small { margin-left:8px; font-size:15px; color:var(--muted); }
+.calculator-result>i { color:var(--muted); font-size:14px; }
+.calculator-result:disabled>i { visibility:hidden; }
+.calculator-status { min-height:23px; padding:3px 10px; font-size:11px; color:var(--muted); }
+.calculator-examples { display:flex; flex-wrap:wrap; gap:6px; padding-top:4px; }
+.calculator-examples button { padding:6px 8px; border-radius:6px; background:var(--icon-bg); color:var(--muted); font-size:11px; }
+.calculator-examples button:hover { color:var(--text); background:var(--hover); }
 .weather-overview { display:flex; justify-content:space-between; align-items:center; padding:12px 4px 18px; border-bottom:1px solid var(--line); }
 .weather-overview>.meteo-icon { width:92px; height:92px; }
 .weather-degrees { font-size:42px; font-weight:500; line-height:1.2; letter-spacing:-2px; font-variant-numeric:tabular-nums; }

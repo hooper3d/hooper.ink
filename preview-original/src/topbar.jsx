@@ -12,6 +12,7 @@ import NavigationManager from './NavigationManager';
 import {createPortal} from 'react-dom';
 import MusicPlayer from './MusicPlayer';
 import PrivateNotes from './PrivateNotes';
+import Calculator from './Calculator';
 import Dock from './vendor/react-bits-dock/Dock';
 dayjs.locale('zh-cn');
 const dateFormat=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'long',day:'numeric',weekday:'short'});
@@ -33,7 +34,7 @@ function Topbar(){
     return()=>{observer.disconnect();clearInterval(timer)};
   },[]);
   useEffect(()=>{
-    if(!open||['music','notes'].includes(open))return;
+    if(!open||['music','notes','calculator'].includes(open))return;
     const escape=event=>{if(event.key==='Escape'){event.stopPropagation();setOpen(null);(open==='weather'?weatherTrigger:calendarTrigger).current?.focus()}};
     document.addEventListener('keydown',escape,true);
     return()=>document.removeEventListener('keydown',escape,true);
@@ -49,10 +50,11 @@ function Topbar(){
   </section>;
   const calendarPanel=<section ref={calendarPanelRef} className="topbar-panel calendar-panel" role="dialog" aria-label="日历"><CalendarPanel key={key}/></section>;
   const dockItems=[
-    {id:'video',label:'影视',icon:<i className="fas fa-tv" aria-hidden="true"/>,onClick:()=>window.open('https://tv.hooper.ink/','_blank','noopener,noreferrer')},
+    {id:'video',label:'影视',icon:<i className="fas fa-clapperboard" aria-hidden="true"/>,onClick:()=>window.open('https://tv.hooper.ink/','_blank','noopener,noreferrer')},
     {id:'music',label:'音乐',icon:<i className="fas fa-music" aria-hidden="true"/>,active:open==='music',renderItem:button=><MusicPlayer triggerElement={button} open={open==='music'} onOpenChange={value=>setOpen(value?'music':null)}/>},
     ...(session?.authenticated?[{id:'notes',label:'随手记',icon:<i className="fas fa-note-sticky" aria-hidden="true"/>,active:open==='notes',renderItem:button=><PrivateNotes triggerElement={button} session={session} onSessionChange={setSession} onDirtyChange={setPrivateDirty} open={open==='notes'} onOpenChange={value=>setOpen(value?'notes':null)}/>}]:[]),
-    {id:'calendar',label:'日历',icon:<i className="far fa-calendar" aria-hidden="true"/>,active:open==='calendar',renderItem:button=><Popover open={open==='calendar'} onOpenChange={value=>setOpen(value?'calendar':null)} afterOpenChange={value=>{if(value)calendarPanelRef.current?.querySelector('.calendar-cell.selected')?.focus()}} trigger="click" placement="top" arrow={false} content={calendarPanel}>{React.cloneElement(button,{ref:node=>{button.props.ref(node);calendarTrigger.current=node},'aria-haspopup':'dialog','aria-expanded':open==='calendar'})}</Popover>}
+    {id:'calendar',label:'日历',icon:<i className="far fa-calendar" aria-hidden="true"/>,active:open==='calendar',renderItem:button=><Popover open={open==='calendar'} onOpenChange={value=>setOpen(value?'calendar':null)} afterOpenChange={value=>{if(value)calendarPanelRef.current?.querySelector('.calendar-cell.selected')?.focus()}} trigger="click" placement="top" arrow={false} content={calendarPanel}>{React.cloneElement(button,{ref:node=>{button.props.ref(node);calendarTrigger.current=node},'aria-haspopup':'dialog','aria-expanded':open==='calendar'})}</Popover>},
+    {id:'calculator',label:'计算器',icon:<i className="fas fa-calculator" aria-hidden="true"/>,active:open==='calculator',renderItem:button=><Calculator triggerElement={button} open={open==='calculator'} onOpenChange={value=>setOpen(value?'calculator':null)}/>}
   ];
   return <ConfigProvider locale={zhCN} theme={{algorithm:dark?theme.darkAlgorithm:theme.defaultAlgorithm,token:{fontFamily:'Inter,"Noto Sans SC",sans-serif',colorPrimary:token('--accent'),colorText:token('--text'),colorTextLightSolid:dark?token('--bg'):token('--surface'),colorTextSecondary:token('--muted'),colorTextTertiary:token('--muted'),colorBgBase:token('--bg'),colorBgContainer:token('--surface'),colorBgElevated:token('--surface'),colorBorder:token('--line'),colorBorderSecondary:token('--line'),colorPrimaryBg:token('--selected'),borderRadius:10,boxShadowSecondary:'0 12px 40px #17213126'},components:{Calendar:{fullBg:token('--surface'),itemActiveBg:token('--selected')}}}}>
     <div className="topbar-tools">
