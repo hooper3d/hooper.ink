@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>contenteditable 踩坑记：一场与 DOM 的四次博弈 - Hooper 的博客</title>
+  <meta name="description" content="把视频生成平台的 textarea 升级为支持素材引用的 contenteditable div，踩了四个大坑才找到正确答案。记录整个思考过程和根因分析。">
+  <meta name="keywords" content="前端, DOM, JavaScript, contenteditable, Hooper, hooper.ink, 博客">
+  <meta name="author" content="Hooper">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hooper.ink/blog/posts/contenteditable-dom-battle.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="contenteditable 踩坑记：一场与 DOM 的四次博弈 - Hooper 的博客">
+  <meta property="og:description" content="把视频生成平台的 textarea 升级为支持素材引用的 contenteditable div，踩了四个大坑才找到正确答案。记录整个思考过程和根因分析。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hooper.ink/blog/posts/contenteditable-dom-battle.html">
+  <meta property="og:site_name" content="Hooper 的博客">
+  <meta property="og:image" content="/blog/assets/images/cover-contenteditable-dom-battle.webp">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="contenteditable 踩坑记：一场与 DOM 的四次博弈 - Hooper 的博客">
+  <meta name="twitter:description" content="把视频生成平台的 textarea 升级为支持素材引用的 contenteditable div，踩了四个大坑才找到正确答案。记录整个思考过程和根因分析。">
+  <meta name="twitter:image" content="/blog/assets/images/cover-contenteditable-dom-battle.webp">
+
+  <meta property="article:published_time" content="2026-04-21">
+  <meta property="article:author" content="Hooper">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐅</text></svg>">
+
+  <!-- 依赖 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'], serif: ['Noto Serif SC', 'serif'] },
+          colors: {
+            cyber: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    .prose { line-height: 1.85; }
+    .prose h2 { font-size: 1.75rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(20,184,166,0.15); scroll-margin-top: 5rem; }
+    .prose h3 { font-size: 1.35rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.75rem; scroll-margin-top: 5rem; }
+    .prose p { margin-bottom: 1.1rem; }
+    .prose a { color: #14b8a6; text-decoration: underline; text-underline-offset: 3px; }
+    .prose a:hover { color: #0d9488; }
+    .prose blockquote { border-left: 4px solid #14b8a6; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: #475569; background: rgba(20,184,166,0.05); border-radius: 0 0.5rem 0.5rem 0; }
+    .dark .prose blockquote { color: #94a3b8; background: rgba(20,184,166,0.08); }
+    .prose code { background: rgba(20,184,166,0.12); color: #0d9488; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; font-family: 'SF Mono', 'Monaco', 'Consolas', monospace; }
+    .dark .prose code { background: rgba(45,212,191,0.18); color: #5eead4; }
+    .prose pre { background: #0f172a !important; border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(20,184,166,0.2); }
+    .prose pre code { background: transparent; color: #e2e8f0; padding: 0; font-size: 0.875rem; }
+    .prose ul, .prose ol { padding-left: 1.75rem; margin-bottom: 1.1rem; }
+    .prose li { margin-bottom: 0.4rem; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { border: 1px solid rgba(20,184,166,0.2); padding: 0.6rem 0.85rem; text-align: left; }
+    .prose th { background: rgba(20,184,166,0.1); font-weight: 600; }
+    .prose img { border-radius: 0.5rem; margin: 1.5rem auto; max-width: 100%; }
+    .prose hr { border: none; border-top: 1px dashed rgba(20,184,166,0.3); margin: 2rem 0; }
+    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,184,0.1); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(20,184,166,0.2); }
+    .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.04) 1px, transparent 1px); background-size: 32px 32px; }
+    .dark .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.06) 1px, transparent 1px); }
+    .tag { display: inline-block; padding: 0.125rem 0.625rem; background: rgba(20, 184, 166, 0.1); color: #0d9488; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem; }
+    .dark .tag { background: rgba(45, 212, 191, 0.15); color: #5eead4; }
+    .toc-sidebar { display: none; }
+    @media (min-width: 1024px) { .toc-sidebar { display: block; } }
+    .toc-link { display: block; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: #64748b; transition: all 0.2s; border-left: 2px solid transparent; }
+    .dark .toc-link { color: #94a3b8; }
+    .toc-link:hover { color: #0d9488; background: rgba(20,184,166,0.08); }
+    .dark .toc-link:hover { color: #2dd4bf; }
+    .toc-link.active { color: #0d9488; border-left-color: #14b8a6; background: rgba(20,184,166,0.08); }
+    .dark .toc-link.active { color: #2dd4bf; border-left-color: #2dd4bf; }
+    .toc-link-h3 { padding-left: 1rem; font-size: 0.8rem; }
+    .toc-link-h2 { font-weight: 500; }
+    @keyframes breathe { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200 bg-grid">
+<!-- Top Bar -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2 text-slate-700 dark:text-slate-200 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-paw"></i>
+          </div>
+          <span class="font-bold">hooper.ink</span>
+        </a>
+        <span class="text-slate-300 dark:text-slate-700">|</span>
+        <a href="/blog/" class="text-sm text-slate-500 dark:text-slate-400 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">博客</a>
+      </div>
+      <button id="themeToggle" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-moon text-slate-600 dark:text-slate-300"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex gap-8">
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar w-60 shrink-0">
+    <div class="sticky top-20 glass rounded-xl p-4">
+      <h3 class="text-sm font-bold mb-3 text-slate-700 dark:text-slate-200">
+        <i class="fas fa-list-ul mr-1.5 text-cyber-500"></i>目录
+      </h3>
+      <nav id="tocNav" class="space-y-1">
+        <!-- TOC injected by JS -->
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Article -->
+  <article class="flex-1 min-w-0">
+    <!-- Cover -->
+    
+    <div class="mb-8 rounded-2xl overflow-hidden">
+      <img src="/blog/assets/images/cover-contenteditable-dom-battle.webp" alt="contenteditable 踩坑记：一场与 DOM 的四次博弈 - Hooper 的博客" class="w-full h-64 object-cover">
+    </div>
+    
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
+      <span><i class="far fa-calendar mr-1"></i>2026-04-21</span>
+      <span>·</span>
+      <span><i class="fas fa-map-marker-alt mr-1"></i>南京</span>
+      <span>·</span>
+      <span><i class="far fa-clock mr-1"></i>3 分钟</span>
+      <span>·</span>
+      <span id="busuanzi_container_page_pv" class="hidden md:inline">
+        <i class="far fa-eye mr-1"></i>阅读 <span id="busuanzi_value_page_pv" class="font-semibold text-cyber-500">-</span>
+      </span>
+      
+      <span class="hidden md:inline">·</span>
+      <div class="hidden md:flex flex-wrap gap-1.5">
+        <span class="tag">前端</span><span class="tag">DOM</span><span class="tag">JavaScript</span><span class="tag">contenteditable</span>
+      </div>
+      
+    </div>
+
+    <h1 class="text-4xl font-bold mb-6 leading-tight">contenteditable 踩坑记：一场与 DOM 的四次博弈 - Hooper 的博客</h1>
+
+    <!-- Content -->
+    <div class="prose max-w-none text-slate-700 dark:text-slate-300">
+      <p>今天和胡爪爪折腾视频生成平台，要把 prompt 输入框从 <code>&lt;textarea&gt;</code> 升级为 <code>contenteditable</code> div，支持在输入过程中插入素材引用标签。本来以为一个小时能搞定，结果折腾了一整天，踩了四个大坑才找到正确答案。</p>
+<h2 id="_1">目标</h2>
+<p>在 prompt 输入框里输入 <code>#</code> 或 <code>@</code> 时，弹出一个素材列表，选中后把素材缩略图以标签形式内嵌到输入框里。提交时把这些标签还原成 <code>[文件名]</code> 纯文本，发给视频生成 API。</p>
+<p>听起来不复杂？往下看。</p>
+<hr />
+<h2 id="innerhtml">坑一：innerHTML 会摧毁已有标签</h2>
+<p><strong>现象</strong>：插入第一个引用正常，插入第二个时，第一个缩略图消失了，变成纯文本。</p>
+<p><strong>根因</strong>：<code>editor.innerHTML = before + '&lt;span id="__insert__"&gt;&lt;/span&gt;' + after</code> 看似简洁，实际上是<strong>重建整个 DOM 树</strong>。所有已有 ref-tag 的子节点全部被销毁重建，内部状态全部丢失。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 旧代码（有问题）</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">insertTagAtCursor</span><span class="p">(</span><span class="nx">html</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">editor</span><span class="p">.</span><span class="nx">innerHTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">before</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;&lt;span id=&quot;__insert__&quot;&gt;&lt;/span&gt;&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">after</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 问题：这里 innerHTML 重建了整个 DOM</span>
+<span class="w">    </span><span class="c1">// 之前插入的所有 ref-tag 全部消失</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>解决</strong>：放弃 innerHTML，改用 TreeWalker + Range API 纯 DOM 操作，只删改触发字符周围的节点，不碰其他内容。</p>
+<h2 id="innertext-dom">坑二：innerText 字符偏移不等于 DOM 位置</h2>
+<p><strong>现象</strong>：用 innerText 找到 <code>#</code> 的字符偏移后，TreeWalker 定位过去报错 <code>IndexSizeError: There is no child at offset 3</code>。</p>
+<p><strong>根因</strong>：innerText 是渲染后的文本，ref-tag 内部的 alt 文字会被 innerText 计算进去。但 DOM 树里的 text node 是另一套结构，位置永远对不上。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 有问题的代码</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fullText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">innerText</span><span class="p">;</span><span class="w">  </span><span class="c1">// 这包含了 ref-tag 内部的文字</span>
+<span class="c1">// fullText 中的 &quot;#&quot; 位置 ≠ DOM 树里 text node 的偏移</span>
+</code></pre></div>
+
+<p><strong>解决</strong>：改用 keydown 时保存精确的光标位置，用 <code>range.startContainer</code> 和 <code>range.startOffset</code> 记录节点引用。</p>
+<h2 id="_2">坑三：节点引用在第一次插入后失效</h2>
+<p><strong>现象</strong>：第二次插入时报错 <code>Failed to execute 'setEnd' on 'Range': There is no child at offset 3</code>。</p>
+<p><strong>根因</strong>：第一次插入 ref-tag 后，DOM 结构变了，之前保存的 text node 变成了 orphan（已经从 DOM 树中移除）。对这个失效节点调用 <code>setStart</code> 会报错。</p>
+<p><strong>解决</strong>：彻底放弃"保存位置"方案，改为<strong>每次插入时都重新遍历 DOM</strong>。</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">insertTagAtCursor</span><span class="p">(</span><span class="nx">html</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 每次都重新用 TreeWalker 找最后一个 #/@</span>
+<span class="w">    </span><span class="nx">editor</span><span class="p">.</span><span class="nx">normalize</span><span class="p">();</span><span class="w"> </span><span class="c1">// 先合并相邻文本节点</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">walker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createTreeWalker</span><span class="p">(</span>
+<span class="w">        </span><span class="nx">editor</span><span class="p">,</span><span class="w"> </span><span class="nx">NodeFilter</span><span class="p">.</span><span class="nx">SHOW_TEXT</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">lastHashNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nx">lastHashOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">charCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">walker</span><span class="p">.</span><span class="nx">nextNode</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">walker</span><span class="p">.</span><span class="nx">currentNode</span><span class="p">;</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">textContent</span><span class="p">.</span><span class="nx">lastIndexOf</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">atIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">textContent</span><span class="p">.</span><span class="nx">lastIndexOf</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">maxIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">idx</span><span class="p">,</span><span class="w"> </span><span class="nx">atIdx</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">maxIdx</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">lastHashOffset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">lastHashOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">maxIdx</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">lastHashNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 删除触发字符，插入标签</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">delRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createRange</span><span class="p">();</span>
+<span class="w">    </span><span class="nx">delRange</span><span class="p">.</span><span class="nx">setStart</span><span class="p">(</span><span class="nx">lastHashNode</span><span class="p">,</span><span class="w"> </span><span class="nx">lastHashOffset</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">delRange</span><span class="p">.</span><span class="nx">setEnd</span><span class="p">(</span><span class="nx">lastHashNode</span><span class="p">,</span><span class="w"> </span><span class="nx">lastHashOffset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">delRange</span><span class="p">.</span><span class="nx">deleteContents</span><span class="p">();</span>
+<span class="w">    </span><span class="nx">delRange</span><span class="p">.</span><span class="nx">insertNode</span><span class="p">(</span><span class="nx">tagNode</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="_3">坑四：光标会跳进标签里</h2>
+<p><strong>现象</strong>：ref-tag 插入后，光标自动跑到标签文字中间，导致无法继续输入。</p>
+<p><strong>根因</strong>：contenteditable 会把 ref-tag 内部的文字当成可编辑内容，光标自然会进去。</p>
+<p><strong>解决</strong>：两招组合：</p>
+<ol>
+<li>ref-tag 设为 <code>contenteditable="false"</code>（光标根本进不去）</li>
+<li>标签后追加零宽空格 <code>\u200B</code>，把光标"挤"到标签外面</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1">// ref-tag 的 HTML 结构</span>
+<span class="sb">`&lt;span class=&quot;ref-tag&quot; contenteditable=&quot;false&quot; data-file=&quot;</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">&quot;&gt;</span>
+<span class="sb">    &lt;img src=&quot;</span><span class="si">${</span><span class="nx">thumb_url</span><span class="si">}</span><span class="sb">&quot; alt=&quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot;&gt;</span>
+<span class="sb">    &lt;span&gt;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&lt;/span&gt;</span>
+<span class="sb">&lt;/span&gt;`</span>
+
+<span class="c1">// 插入后追加零宽空格，光标移到这里</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">zwsp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="s1">&#39;\u200B&#39;</span><span class="p">);</span>
+<span class="nx">tagNode</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">zwsp</span><span class="p">,</span><span class="w"> </span><span class="nx">tagNode</span><span class="p">.</span><span class="nx">nextSibling</span><span class="p">);</span>
+<span class="nx">range</span><span class="p">.</span><span class="nx">setStartAfter</span><span class="p">(</span><span class="nx">zwsp</span><span class="p">);</span>
+</code></pre></div>
+
+<h2 id="_4">最终方案总结</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>触发字符定位</td>
+<td>TreeWalker 遍历所有文本节点，找最后一个 <code>#</code>/<code>@</code></td>
+</tr>
+<tr>
+<td>删除字符</td>
+<td><code>Range.deleteContents()</code> 精准删一个字符</td>
+</tr>
+<tr>
+<td>插入标签</td>
+<td><code>Range.insertNode()</code> 在删除位置插入</td>
+</tr>
+<tr>
+<td>防止光标入标签</td>
+<td><code>contenteditable="false"</code> + 零宽空格锚点</td>
+</tr>
+<tr>
+<td>提交序列化</td>
+<td>遍历 DOM 把 ref-tag 还原为 <code>[文件名]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">核心教训</h2>
+<p>contenteditable 是一个<strong>"看起来简单但到处都是坑"</strong>的特性。</p>
+<ul>
+<li>innerHTML 方便但会摧毁状态</li>
+<li>节点引用在 DOM 变化后可能失效</li>
+<li>innerText 的字符偏移不等于 DOM 位置</li>
+<li>光标行为不可预测</li>
+</ul>
+<p>最稳的方案是：<strong>不要信任任何缓存的位置信息，每次操作都重新在 DOM 里查找。</strong></p>
+<hr />
+<blockquote>
+<p>功能已上线，素材引用标签可以在 prompt 输入框里随意插入多个，提交时正确还原为纯文本。</p>
+</blockquote>
+    </div>
+
+    <!-- Prev/Next -->
+    <nav class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
+      
+      <a href="/blog/posts/rebuild-nav-site.html" class="card-hover glass rounded-xl p-4 flex-1 group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-arrow-left mr-1"></i>上一篇</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">从零搭建个人导航站：赛博老虎的上线之旅</div>
+      </a>
+      
+      <a href="/blog/" class="card-hover glass rounded-xl p-4 sm:w-48 text-center group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-th-list mr-1"></i>博客首页</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">所有文章</div>
+      </a>
+      
+      <a href="/blog/posts/aigc-platform-dev-log.html" class="card-hover glass rounded-xl p-4 flex-1 text-right group">
+        <div class="text-xs text-slate-400 mb-1">下一篇<i class="fas fa-arrow-right ml-1"></i></div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">从零搭建 AIGC 视频平台：我为什么选择 FastAPI + Provider 抽象层</div>
+      </a>
+      
+    </nav>
+
+    <!-- Giscus -->
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200">
+        <i class="far fa-comments mr-2 text-cyber-500"></i>评论
+      </h3>
+      <div class="giscus"></div>
+    </div>
+  </article>
+</div>
+
+<!-- TOC Script -->
+<script>
+(function() {
+  const article = document.querySelector('article .prose');
+  if (!article) return;
+  const headings = article.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  const nav = document.getElementById('tocNav');
+  headings.forEach((h, i) => {
+    h.id = h.id || ('h-' + i + '-' + h.textContent.trim().replace(/\s+/g, '-').toLowerCase().slice(0, 40));
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.className = 'toc-link ' + (h.tagName === 'H2' ? 'toc-link-h2' : 'toc-link-h3');
+    a.textContent = h.textContent.trim();
+    nav.appendChild(a);
+  });
+  // Scroll-spy
+  const tocLinks = nav.querySelectorAll('.toc-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = nav.querySelector('a[href="#' + e.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  headings.forEach(h => obs.observe(h));
+})();
+</script>
+
+<!-- Footer -->
+<footer class="mt-20 pb-8 text-center text-xs text-slate-400">
+  <p>Copyright &copy; 2026 Hooper 的数字领地 · 赛博老虎驻守中</p>
+  <p class="mt-1">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="hover:text-cyber-400 transition-colors">
+      苏ICP备2022029383号-1
+    </a>
+  </p>
+</footer>
+
+<script>
+  // Theme
+  const themeToggle = document.getElementById('themeToggle');
+  function setTheme(dark) {
+    if (dark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); }
+    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); }
+  }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+  }
+  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setTheme(true);
+  }
+
+  // highlight.js
+  if (typeof hljs !== 'undefined') { hljs.highlightAll(); }
+</script>
+
+
+<!-- Giscus Comments -->
+<script>
+  (function() {
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'hooper3d/hooper.ink');
+    script.setAttribute('data-repo-id', 'R_kgDOSGEnYQ');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOSGEnYc4C7Iyy');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    document.body.appendChild(script);
+  })();
+</script>
+
+
+
+<!-- busuanzi 阅读数 -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</body>
+</html>

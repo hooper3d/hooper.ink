@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>胡珀的导航站 - 赛博黑马 | 独立开发者工具箱</title>
+  <meta name="description" content="胡珀的个人导航站，聚合 AI 工具、开发资源、设计灵感、效率工具，每日诗词推荐。赛博黑马驻守中中。">
+  <meta name="keywords" content="胡珀,导航站,独立开发者,AIGC,AI 工具,开发者工具,前端,赛博黑马">
+  <meta name="author" content="胡珀">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hooper.ink/">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="胡珀的导航站 - 赛博黑马">
+  <meta property="og:description" content="独立开发者的个人导航站，聚合 AI 工具、开发资源、设计灵感。每日诗词推荐。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hooper.ink/">
+  <meta property="og:site_name" content="胡珀的导航站">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="胡珀的导航站 - 赛博黑马">
+  <meta name="twitter:description" content="独立开发者的个人导航站，聚合 AI 工具、开发资源、设计灵感。每日诗词推荐。">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐴</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans SC', 'sans-serif'],
+          },
+          colors: {
+            cyber: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    }
+    #poetrySentence {
+      font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+      font-weight: 800;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .dark .glass {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    /* #9 Dark mode card polish */
+    .dark .card-hover {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(100, 116, 139, 0.15);
+    }
+    .dark .card-hover:hover {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.1);
+    }
+    /* Favicon image */
+    .favicon-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      object-fit: contain;
+    }
+    /* NEW badge */
+    .badge-new {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      line-height: 1.4;
+      box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);
+    }
+    /* Favorite star */
+    .fav-star {
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    .fav-star:hover {
+      transform: scale(1.3);
+    }
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    .dark .skeleton {
+      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    /* Empty state suggestion */
+    .empty-suggestion {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.375rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .empty-suggestion:hover {
+      background: rgba(59, 130, 246, 0.2);
+    }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+    }
+    .dark .card-hover:hover {
+      box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.15);
+    }
+    .search-glow:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .bg-grid {
+      background-image: 
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    /* Weather widget */
+    .weather-widget {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: default;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .weather-widget:hover {
+      background: rgba(148, 163, 184, 0.1);
+    }
+    .weather-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .weather-temp {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .weather-city {
+      color: rgb(100, 116, 139);
+      font-size: 11px;
+    }
+    .dark .weather-city {
+      color: rgb(148, 163, 184);
+    }
+    /* Weather forecast tooltip */
+    .weather-wrapper {
+      position: relative;
+    }
+    .weather-forecast {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: 14px;
+      padding: 14px 16px;
+      min-width: 200px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      z-index: 100;
+    }
+    .dark .weather-forecast {
+      background: rgba(15, 23, 42, 0.95);
+      border-color: rgba(51, 65, 85, 0.6);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .weather-wrapper:hover .weather-forecast {
+      display: block;
+      animation: fadeDown 0.2s ease-out;
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .forecast-day {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: 13px;
+    }
+    .forecast-day:not(:last-child) {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .dark .forecast-day:not(:last-child) {
+      border-bottom-color: rgba(71, 85, 105, 0.3);
+    }
+    .forecast-date {
+      color: rgb(100, 116, 139);
+      font-size: 12px;
+      width: 56px;
+    }
+    .dark .forecast-date {
+      color: rgb(148, 163, 184);
+    }
+    .forecast-icon {
+      font-size: 16px;
+      width: 24px;
+      text-align: center;
+    }
+    .forecast-temp {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .forecast-temp .low {
+      color: rgb(148, 163, 184);
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen flex flex-col transition-colors duration-300 bg-grid">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-horse-head"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight">胡珀的导航站</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 -mt-0.5">基于Hermes Agent构建</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <div class="weather-wrapper">
+            <div id="weatherWidget" class="weather-widget">
+              <span class="weather-icon">🌤️</span>
+              <span class="weather-temp">--°C</span>
+              <span class="weather-city">南京</span>
+            </div>
+            <div id="weatherForecast" class="weather-forecast"></div>
+          </div>
+          <button id="themeToggle" class="w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+            <i class="fas fa-moon dark:hidden text-slate-600"></i>
+            <i class="fas fa-sun hidden dark:block text-amber-400"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    
+    <!-- 今日诗词 -->
+    <div class="max-w-2xl mx-auto mb-8 fade-in">
+      <div class="glass rounded-2xl p-6 text-center relative group cursor-pointer" id="poetryCard" onclick="loadPoetry()">
+        <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="fas fa-rotate text-slate-400 hover:text-cyber-400 text-sm"></i>
+        </div>
+        <div id="poetryContent" class="transition-opacity duration-300">
+          <p class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 leading-relaxed mb-2" id="poetrySentence"></p>
+          <p class="text-sm text-slate-500 dark:text-slate-400" id="poetryMeta"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="max-w-2xl mx-auto mb-10 fade-in">
+      <div class="relative">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input 
+          type="text" 
+          id="searchInput"
+          placeholder="搜索工具、网站..."
+          class="w-full pl-12 pr-4 py-4 rounded-2xl glass text-base outline-none search-glow transition-shadow dark:bg-slate-900/50 dark:text-white placeholder:text-slate-400"
+        >
+      </div>
+      <div class="flex flex-wrap justify-center gap-2 mt-4" id="categoryFilters">
+        <button data-cat="all" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium bg-cyber-500 text-white shadow-lg shadow-cyber-500/20 transition-all">全部</button>
+        <button data-cat="ai" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium glass hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">AI 工具</button>
+        <button data-cat="dev" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium glass hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">开发</button>
+        <button data-cat="aigc" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium glass hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">AIGC</button>
+        <button data-cat="productivity" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium glass hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">效率</button>
+        <button data-cat="my" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium glass hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">我的项目</button>
+      </div>
+    </div>
+
+    <!-- Links Grid -->
+    <div id="linksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Generated by JS -->
+    </div>
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full glass flex items-center justify-center">
+        <i class="fas fa-ghost text-3xl text-slate-400"></i>
+      </div>
+      <p class="text-slate-500 dark:text-slate-400">没找到匹配的工具</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">试试其他关键词，或用 <code class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs">!g 关键词</code> 搜索引擎</p>
+      <span class="empty-suggestion" onclick="document.getElementById('searchInput').value='';searchInput.dispatchEvent(new Event('input'))">清除搜索</span>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-16 pb-8 text-center text-sm text-slate-400">
+    <style>
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.12); }
+      }
+    </style>
+    <p class="flex items-center justify-center whitespace-nowrap" style="white-space:nowrap">
+      <span style="display:inline-flex; align-items:center; gap:6px; white-space:nowrap; cursor:default;" onmouseenter="const p=this.querySelector('.horse-popup'); p.style.opacity='1'; p.style.transform='translateX(-50%) scale(1)'" onmouseleave="const p=this.querySelector('.horse-popup'); p.style.opacity='0'; p.style.transform='translateX(-50%) scale(0.2)'">
+        <span>Hooper 的数字领地</span>
+        <span style="display:inline-block; position:relative; vertical-align:middle;">
+          <img src="/avatar-horse-thumb.png?v=2" alt="赛博老虎" style="width:24px; height:24px; border-radius:9999px; border:2px solid rgba(59,130,246,0.2); display:block; animation:breathe 2.5s ease-in-out infinite;" />
+          <span class="horse-popup" style="position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%) scale(0.2); transform-origin:center bottom; opacity:0; transition:opacity 0.3s ease, transform 0.3s ease; pointer-events:none; z-index:50; white-space:normal;">
+          <span style="display:block; width:128px; height:128px; border-radius:9999px; overflow:hidden; border:2px solid rgba(59,130,246,0.4); box-shadow:0 20px 25px -5px rgba(59,130,246,0.2); background:#0f172a;">
+            <img src="/avatar-horse-thumb.png?v=2" alt="赛博老虎" style="width:100%; height:100%; object-fit:cover;" />
+          </span>
+          <span style="position:absolute; bottom:-5px; left:50%; transform:translateX(-50%) rotate(45deg); width:8px; height:8px; background:#0f172a; border-right:1px solid rgba(59,130,246,0.4); border-bottom:1px solid rgba(59,130,246,0.4);"></span>
+        </span>
+        </span>
+        <span style="transition:color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color=''">赛博老虎驻守中</span>
+      </span>
+    </p>
+    <p class="mt-2 text-xs opacity-60">Copyright © 2026 老虎的私人导航站</p>
+    <p class="mt-1 text-xs opacity-60">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="hover:text-cyber-400 transition-colors">
+        苏ICP备2022029383号-1
+      </a>
+    </p>
+  </footer>
+
+  <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+  <script>
+    // Poetry
+    function loadPoetry() {
+      const sentenceEl = document.getElementById('poetrySentence');
+      const metaEl = document.getElementById('poetryMeta');
+      const contentEl = document.getElementById('poetryContent');
+      
+      // Skeleton loading (#8)
+      sentenceEl.innerHTML = '<div class="skeleton h-6 w-64 mx-auto"></div>';
+      metaEl.innerHTML = '<div class="skeleton h-4 w-40 mx-auto mt-2"></div>';
+      contentEl.style.opacity = '1';
+      
+      jinrishici.load(function(result) {
+        if (result.status === 'success') {
+          const data = result.data;
+          const origin = data.origin;
+          sentenceEl.innerHTML = data.content;
+          metaEl.textContent = `【${origin.dynasty}】${origin.author} 《${origin.title}》`;
+        } else {
+          sentenceEl.innerHTML = '洛阳亲友如相问，一片冰心在玉壶。';
+          metaEl.textContent = '【唐代】王昌龄 《芙蓉楼送辛渐》';
+        }
+        contentEl.style.opacity = '1';
+      });
+    }
+    
+    // Load poetry on page load
+    if (typeof jinrishici !== 'undefined') {
+      loadPoetry();
+    } else {
+      // Fallback with delay to simulate loading
+      setTimeout(() => {
+        document.getElementById('poetrySentence').innerHTML = '洛阳亲友如相问，一片冰心在玉壶。';
+        document.getElementById('poetryMeta').textContent = '【唐代】王昌龄 《芙蓉楼送辛渐》';
+      }, 800);
+    }
+
+    // Data
+    const navData = [
+      { title: 'ChatGPT', url: 'https://chat.openai.com', desc: 'OpenAI 对话助手', cat: 'ai', icon: 'fa-robot', color: 'from-emerald-400 to-teal-600', alias: 'gpt' },
+      { title: 'Claude', url: 'https://claude.ai', desc: 'Anthropic AI 助手', cat: 'ai', icon: 'fa-brain', color: 'from-orange-400 to-amber-600', alias: 'claude' },
+      { title: 'Gemini', url: 'https://gemini.google.com', desc: 'Google AI 助手', cat: 'ai', icon: 'fa-sparkles', color: 'from-blue-400 to-indigo-600', alias: 'gemini' },
+      { title: 'Tushare', url: 'https://tushare.pro/', desc: 'A 股金融数据接口', cat: 'dev', icon: 'fa-chart-line', color: 'from-emerald-400 to-teal-600' },
+      { title: 'MiniMax', url: 'https://www.minimaxi.com/', desc: 'MiniMax AI 平台', cat: 'ai', icon: 'fa-bolt', color: 'from-rose-500 to-red-600' },
+      { title: 'DeepSeek', url: 'https://deepseek.com', desc: '深度求索 AI 助手', cat: 'ai', icon: 'fa-rocket', color: 'from-indigo-500 to-blue-700' },
+      { title: '火山引擎', url: 'https://www.volcengine.com/', desc: '火山引擎-你的AI云', cat: 'ai', icon: 'fa-fire', color: 'from-red-500 to-orange-600' },
+      { title: 'LuckyAPI', url: 'https://cn.luckyapi.chat', desc: '全平台 AI 接入网关', cat: 'ai', icon: 'fa-dharmachakra', color: 'from-green-400 to-emerald-600' },
+      { title: 'Hermes Agent 中文社区', url: 'https://hermesagent.org.cn/', desc: 'Hermes Agent 中文社区', cat: 'dev', icon: 'fa-comments', color: 'from-cyan-400 to-blue-600' },
+      { title: 'GitHub', url: 'https://github.com', desc: '代码托管平台', cat: 'dev', icon: 'fa-github', color: 'from-gray-600 to-gray-800', alias: 'gh' },
+      { title: '腾讯云', url: 'https://console.cloud.tencent.com/', desc: '服务器架设平台', cat: 'dev', icon: 'fa-cloud', color: 'from-blue-500 to-cyan-600' },
+      { title: 'Figma', url: 'https://www.figma.com', desc: '协作设计工具', cat: 'aigc', icon: 'fa-pen-nib', color: 'from-red-400 to-rose-600', alias: 'figma' },
+      { title: 'Dribbble', url: 'https://dribbble.com', desc: '设计灵感社区', cat: 'aigc', icon: 'fa-basketball', color: 'from-pink-400 to-rose-500' },
+      { title: 'Coolors', url: 'https://coolors.co', desc: '配色方案生成器', cat: 'aigc', icon: 'fa-palette', color: 'from-violet-400 to-purple-600' },
+      { title: '即梦 AI', url: 'https://jimeng.jianying.com/ai-tool/home/', desc: 'AI 创作平台，图片视频生成', cat: 'aigc', icon: 'fa-wand-magic-sparkles', color: 'from-purple-400 to-pink-600', new: true },
+      { title: 'Excalidraw', url: 'https://excalidraw.com', desc: '手绘风格画图', cat: 'productivity', icon: 'fa-pencil', color: 'from-amber-400 to-orange-500', alias: 'ex' },
+      { title: 'TinyPNG', url: 'https://tinypng.com', desc: '图片压缩工具', cat: 'productivity', icon: 'fa-compress', color: 'from-teal-400 to-cyan-600' },
+      { title: '查学区', url: '#', desc: '小程序「查学区」', cat: 'my', icon: 'fa-graduation-cap', color: 'from-cyber-400 to-cyber-600' },
+      { title: '老虎的音乐站', url: 'http://music.hooper.ink:6303/', desc: '自有音乐播放站点', cat: 'my', icon: 'fa-headphones', color: 'from-pink-500 to-rose-600' },
+      { title: '个人博客', url: '/blog/', desc: '技术随笔与实操记录', cat: 'my', icon: 'fa-rss', color: 'from-slate-500 to-slate-700' },
+      { title: '虚拟交易盘', url: '/sim/', desc: '10万虚拟资金 A股模拟交易', cat: 'my', icon: 'fa-chart-line', color: 'from-emerald-400 to-teal-600', new: true },
+      { title: 'A股投研终端', url: 'https://hooper.ink/trading/', desc: '14名AI Agent多智能体投研系统', cat: 'my', icon: 'fa-microchip', color: 'from-violet-400 to-purple-600', new: true },
+      { title: '今日 AI 圈', url: '/ai-daily/', desc: 'AI 资讯聚合 · 每日更新', cat: 'my', icon: 'fa-robot', color: 'from-blue-400 to-indigo-600', new: true },
+      { title: 'AIGC 视频站', url: 'http://aigc.hooper.ink:6333', desc: 'AI 视频生成学习平台', cat: 'my', icon: 'fa-play', color: 'from-blue-500 to-purple-600', new: true },
+    ];
+
+    // State
+    let currentCat = 'all';
+    let searchQuery = '';
+
+    // Favicon helper (#2)
+    function getFaviconUrl(url) {
+      try {
+        const domain = new URL(url).hostname;
+        return `https://favicon.im/${domain}?larger=true`;
+      } catch { return null; }
+    }
+
+    // Favorites (#7)
+    function getFavorites() {
+      try { return JSON.parse(localStorage.getItem('nav_favs') || '[]'); } catch { return []; }
+    }
+    function toggleFav(url, e) {
+      e.preventDefault(); e.stopPropagation();
+      let favs = getFavorites();
+      if (favs.includes(url)) { favs = favs.filter(f => f !== url); }
+      else { favs.push(url); }
+      localStorage.setItem('nav_favs', JSON.stringify(favs));
+      render();
+    }
+
+    // DOM
+    const grid = document.getElementById('linksGrid');
+    const empty = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const catButtons = document.querySelectorAll('.cat-btn');
+
+    // Render card helper
+    function renderCard(item, i) {
+      const favicon = item.cat === 'my' ? null : getFaviconUrl(item.url);
+      const favs = getFavorites();
+      const isFav = favs.includes(item.url);
+      return `
+        <a href="${item.url}" ${item.url.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} 
+           class="card-hover glass rounded-2xl p-5 block group fade-in relative" 
+           style="animation-delay: ${i * 30}ms">
+          ${item.new ? '<span class="badge-new">NEW</span>' : ''}
+          <div class="flex items-start space-x-4">
+            <div class="relative shrink-0">
+              ${favicon 
+                ? `<img src="${favicon}" class="favicon-img w-12 h-12 rounded-xl p-1.5 bg-white/80 dark:bg-slate-800/80 shadow group-hover:scale-110 transition-transform" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy">`
+                : ''}
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform ${favicon ? 'hidden' : 'flex'}">
+                <i class="fas ${item.icon}"></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-base truncate group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">${item.title}</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate">${item.desc}</p>
+            </div>
+            <div class="flex flex-col items-center gap-1 mt-1">
+              <i class="fas fa-arrow-up-right-from-square text-xs text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+              <i class="fav-star fas fa-star ${isFav ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700 opacity-0 group-hover:opacity-100'}" onclick="toggleFav('${item.url}', event)"></i>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    // Render
+    function render() {
+      const filtered = navData.filter(item => {
+        const matchCat = currentCat === 'all' || item.cat === currentCat;
+        const matchSearch = !searchQuery ||
+          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (item.alias && item.alias.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchCat && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      grid.classList.remove('hidden');
+      empty.classList.add('hidden');
+
+      // Sort: favorites first
+      const favs = getFavorites();
+      const sorted = [...filtered].sort((a, b) => {
+        const aFav = favs.includes(a.url) ? 0 : 1;
+        const bFav = favs.includes(b.url) ? 0 : 1;
+        return aFav - bFav;
+      });
+
+      grid.innerHTML = sorted.map((item, i) => renderCard(item, i)).join('');
+    }
+
+    // Events
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      render();
+    });
+
+    // Search shortcut - Enter to search engine
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const query = searchInput.value.trim();
+      if (!query) return;
+      
+      const engines = {
+        '!g': 'https://www.google.com/search?q=',
+        '!b': 'https://www.bing.com/search?q=',
+        '!d': 'https://duckduckgo.com/?q=',
+        '!gh': 'https://github.com/search?q=',
+        '!y': 'https://www.youtube.com/results?search_query=',
+        '!bd': 'https://www.baidu.com/s?wd=',
+        '!tb': 'https://s.taobao.com/search?q=',
+        '!zh': 'https://www.zhihu.com/search?type=content&q=',
+      };
+      
+      for (const [prefix, url] of Object.entries(engines)) {
+        if (query.startsWith(prefix + ' ')) {
+          window.open(url + encodeURIComponent(query.slice(prefix.length + 1)), '_blank');
+          searchInput.value = '';
+          searchQuery = '';
+          render();
+          return;
+        }
+      }
+      
+      // Default: Google
+      window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
+      searchInput.value = '';
+      searchQuery = '';
+      render();
+    });
+
+    catButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentCat = btn.dataset.cat;
+        catButtons.forEach(b => {
+          b.classList.remove('bg-cyber-500', 'text-white', 'shadow-lg', 'shadow-cyber-500/20');
+          b.classList.add('glass', 'hover:bg-slate-200', 'dark:hover:bg-slate-800');
+        });
+        btn.classList.remove('glass', 'hover:bg-slate-200', 'dark:hover:bg-slate-800');
+        btn.classList.add('bg-cyber-500', 'text-white', 'shadow-lg', 'shadow-cyber-500/20');
+        render();
+      });
+    });
+
+    // Theme
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(dark) {
+      if (dark) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+    themeToggle.addEventListener('click', () => {
+      setTheme(!document.documentElement.classList.contains('dark'));
+    });
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setTheme(true);
+    }
+
+    // Update time (if element exists)
+    const updateTimeEl = document.getElementById('updateTime');
+    if (updateTimeEl) {
+      updateTimeEl.textContent = new Date().toLocaleDateString('zh-CN');
+    }
+
+    // Initial render
+    render();
+
+    // Weather widget
+    const weatherCodes = {
+      '113': '☀️', '116': '⛅', '119': '☁️', '122': '☁️',
+      '143': '🌫️', '176': '🌦️', '179': '🌨️', '182': '🌨️',
+      '185': '🌨️', '200': '⛈️', '227': '🌨️', '230': '🌨️',
+      '248': '🌫️', '260': '🌫️', '263': '🌦️', '266': '🌧️',
+      '281': '🌨️', '284': '🌨️', '293': '🌦️', '296': '🌧️',
+      '299': '🌧️', '302': '🌧️', '305': '🌧️', '308': '🌧️',
+      '311': '🌨️', '314': '🌨️', '317': '🌨️', '320': '🌨️',
+      '323': '🌨️', '326': '🌨️', '329': '❄️', '332': '❄️',
+      '335': '❄️', '338': '❄️', '350': '🌨️', '353': '🌦️',
+      '356': '🌧️', '359': '🌧️', '362': '🌨️', '365': '🌨️',
+      '368': '🌨️', '371': '❄️', '374': '🌨️', '377': '🌨️',
+      '386': '⛈️', '389': '⛈️', '392': '⛈️', '395': '❄️'
+    };
+    async function loadWeather() {
+      try {
+        const resp = await fetch('https://wttr.in/Nanjing?format=j1');
+        const data = await resp.json();
+        const cur = data.current_condition[0];
+        const code = cur.weatherCode;
+        const icon = weatherCodes[code] || '🌤️';
+        const temp = cur.temp_C;
+        document.getElementById('weatherWidget').innerHTML = 
+          `<span class="weather-icon">${icon}</span>` +
+          `<span class="weather-temp">${temp}°C</span>` +
+          `<span class="weather-city">南京</span>`;
+
+        // Render 3-day forecast
+        const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+        const forecastHtml = data.weather.map(day => {
+          const d = new Date(day.date);
+          const today = new Date();
+          const isToday = d.toDateString() === today.toDateString();
+          const label = isToday ? '今天' : weekdays[d.getDay()];
+          const noonCode = day.hourly[4]?.weatherCode || day.hourly[0]?.weatherCode || '113';
+          const dayIcon = weatherCodes[noonCode] || '🌤️';
+          return `<div class="forecast-day">
+            <span class="forecast-date">${label}</span>
+            <span class="forecast-icon">${dayIcon}</span>
+            <span class="forecast-temp">${day.maxtempC}° <span class="low">/ ${day.mintempC}°</span></span>
+          </div>`;
+        }).join('');
+        document.getElementById('weatherForecast').innerHTML = forecastHtml;
+      } catch (e) {
+        console.log('Weather load failed:', e);
+      }
+    }
+    loadWeather();
+
+    // Keyboard shortcuts (/ to focus search, Esc to clear)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+      if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchQuery = '';
+        render();
+      }
+    });
+  </script>
+</body>
+</html>

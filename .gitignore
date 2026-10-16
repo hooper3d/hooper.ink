@@ -137,3 +137,8 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Generated site data and trading runtime state
+/public/ai-daily/data/
+/public/sim/data/
+/public/trading/data/

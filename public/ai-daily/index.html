@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今日 AI 圈 | 胡珀的导航站</title>
+  <meta name="description" content="AI 资讯聚合，每日自动更新。36kr、TechCrunch、爱范儿、少数派等多源 AI 新闻。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans SC', 'sans-serif'],
+            serif: ['Noto Serif SC', 'Songti SC', 'serif'],
+          },
+          colors: {
+            cyber: {
+              50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+              400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+              800: '#1e40af', 900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .dark .glass {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .dark .card-hover {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(100, 116, 139, 0.15);
+    }
+    .dark .card-hover:hover {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.1);
+    }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+    }
+    .bg-grid {
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .article-title { font-family: 'Noto Serif SC', 'Songti SC', serif; }
+    .source-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+    }
+    .dark .skeleton {
+      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .weather-widget {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      cursor: default; transition: background 0.2s; white-space: nowrap;
+    }
+    .weather-widget:hover { background: rgba(148, 163, 184, 0.1); }
+    .weather-icon { font-size: 18px; line-height: 1; }
+    .weather-temp { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .weather-city { color: rgb(100, 116, 139); font-size: 11px; }
+    .dark .weather-city { color: rgb(148, 163, 184); }
+    .filter-btn {
+      padding: 6px 14px; border-radius: 9999px; font-size: 13px; font-weight: 500;
+      transition: all 0.2s; cursor: pointer; border: none;
+    }
+    .filter-btn.active {
+      background: #3b82f6; color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .filter-btn:not(.active) {
+      background: transparent; color: rgb(100, 116, 139);
+    }
+    .dark .filter-btn:not(.active) { color: rgb(148, 163, 184); }
+    .filter-btn:not(.active):hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen flex flex-col transition-colors duration-300 bg-grid">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass">
+    <div class="max-w-[75rem] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3">
+          <a href="/" class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-robot"></i>
+          </a>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight">今日 AI 圈</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 -mt-0.5" id="updateTime">加载中...</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <div class="weather-widget" id="weatherWidget">
+            <span class="weather-icon">🌤️</span>
+            <span class="weather-temp">--°C</span>
+            <span class="weather-city">南京</span>
+          </div>
+          <button id="themeToggle" class="w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+            <i class="fas fa-moon dark:hidden text-slate-600"></i>
+            <i class="fas fa-sun hidden dark:block text-amber-400"></i>
+          </button>
+          <a href="/" class="w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" title="返回导航站">
+            <i class="fas fa-arrow-left text-slate-600 dark:text-slate-400"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-1 max-w-[75rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-2 mb-6" id="filters">
+      <button class="filter-btn active" data-source="all">全部</button>
+    </div>
+
+    <!-- Articles Grid -->
+    <div id="articlesGrid" class="grid grid-cols-1 gap-4">
+      <!-- Skeleton loading -->
+      <div class="glass rounded-2xl p-5"><div class="skeleton h-5 w-3/4 mb-3"></div><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3"></div></div>
+      <div class="glass rounded-2xl p-5"><div class="skeleton h-5 w-3/4 mb-3"></div><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3"></div></div>
+      <div class="glass rounded-2xl p-5"><div class="skeleton h-5 w-3/4 mb-3"></div><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3"></div></div>
+      <div class="glass rounded-2xl p-5"><div class="skeleton h-5 w-3/4 mb-3"></div><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3"></div></div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full glass flex items-center justify-center">
+        <i class="fas fa-newspaper text-3xl text-slate-400"></i>
+      </div>
+      <p class="text-slate-500 dark:text-slate-400">暂无文章</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">RSS 抓取可能尚未运行</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-16 pb-8 text-center text-sm text-slate-400">
+    <p>
+      数据来源：36kr · TechCrunch · 爱范儿 · 少数派 · Google AI · ArXiv
+    </p>
+    <p class="mt-2 text-xs opacity-60">
+      <a href="/" class="hover:text-cyber-400 transition-colors">← 返回导航站</a>
+      · 由赛博黑马维护
+    </p>
+  </footer>
+
+  <script>
+    // State
+    let articles = [];
+    let currentSource = 'all';
+
+    // Theme (sync with main site)
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(dark) {
+      if (dark) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+    themeToggle.addEventListener('click', () => {
+      setTheme(!document.documentElement.classList.contains('dark'));
+    });
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setTheme(true);
+    }
+
+    // Time formatting
+    function timeAgo(dateStr) {
+      const now = new Date();
+      const date = new Date(dateStr);
+      const diff = now - date;
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (mins < 60) return `${mins} 分钟前`;
+      if (hours < 24) return `${hours} 小时前`;
+      if (days < 7) return `${days} 天前`;
+      return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+    }
+
+    // Source colors
+    const sourceColors = {
+      '36kr': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+      'TechCrunch': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      'Google AI': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'ArXiv AI': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      '爱范儿': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+      '少数派': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+    };
+
+    // Render
+    function render() {
+      const grid = document.getElementById('articlesGrid');
+      const empty = document.getElementById('emptyState');
+
+      const filtered = currentSource === 'all'
+        ? articles
+        : articles.filter(a => a.source === currentSource);
+
+      if (filtered.length === 0) {
+        grid.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      grid.classList.remove('hidden');
+      empty.classList.add('hidden');
+
+      grid.innerHTML = filtered.map((article, i) => {
+        const colorClass = sourceColors[article.source] || 'bg-slate-100 text-slate-700';
+        return `
+          <a href="${article.url}" target="_blank" rel="noopener"
+             class="card-hover glass rounded-2xl p-5 block group fade-in"
+             style="animation-delay: ${i * 30}ms">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="source-tag ${colorClass}">
+                ${article.sourceIcon} ${article.source}
+              </span>
+              <span class="text-xs text-slate-400 dark:text-slate-500">${timeAgo(article.date)}</span>
+            </div>
+            <h3 class="article-title font-semibold text-base leading-relaxed mb-2 group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">
+              ${article.title}
+            </h3>
+            ${article.summary ? `<p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">${article.summary}</p>` : ''}
+            <div class="flex items-center justify-between mt-3">
+              <span class="text-xs text-slate-400 dark:text-slate-500">${article.lang === 'zh' ? '中文' : 'English'}</span>
+              <i class="fas fa-arrow-up-right-from-square text-xs text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+          </a>`;
+      }).join('');
+    }
+
+    // Build filter buttons
+    function buildFilters() {
+      const sources = [...new Set(articles.map(a => a.source))];
+      const container = document.getElementById('filters');
+      container.innerHTML = `<button class="filter-btn active" data-source="all">全部 <span class="text-xs opacity-60">${articles.length}</span></button>`;
+      sources.forEach(source => {
+        const count = articles.filter(a => a.source === source).length;
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.dataset.source = source;
+        btn.innerHTML = `${source} <span class="text-xs opacity-60">${count}</span>`;
+        container.appendChild(btn);
+      });
+
+      container.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSource = btn.dataset.source;
+          render();
+        });
+      });
+    }
+
+    // Load data
+    async function loadData() {
+      try {
+        const resp = await fetch('/ai-daily/data/articles.json?' + Date.now());
+        const data = await resp.json();
+        articles = data.articles || [];
+
+        // Update time
+        const updateTime = document.getElementById('updateTime');
+        updateTime.textContent = `上次更新: ${timeAgo(data.updated)} · ${articles.length} 篇文章`;
+
+        buildFilters();
+        render();
+      } catch (err) {
+        console.error('Load failed:', err);
+        document.getElementById('updateTime').textContent = '加载失败';
+      }
+    }
+
+    // Weather
+    const weatherCodes = {
+      '113': '☀️', '116': '⛅', '119': '☁️', '122': '☁️',
+      '143': '🌫️', '176': '🌦️', '179': '🌨️', '200': '⛈️',
+      '227': '🌨️', '230': '🌨️', '248': '🌫️', '263': '🌦️',
+      '266': '🌧️', '293': '🌦️', '296': '🌧️', '299': '🌧️',
+      '302': '🌧️', '305': '🌧️', '308': '🌧️', '356': '🌧️',
+      '359': '🌧️', '386': '⛈️', '389': '⛈️', '392': '⛈️',
+    };
+    async function loadWeather() {
+      try {
+        const resp = await fetch('https://wttr.in/Nanjing?format=j1');
+        const data = await resp.json();
+        const cur = data.current_condition[0];
+        const icon = weatherCodes[cur.weatherCode] || '🌤️';
+        document.getElementById('weatherWidget').innerHTML =
+          `<span class="weather-icon">${icon}</span>` +
+          `<span class="weather-temp">${cur.temp_C}°C</span>` +
+          `<span class="weather-city">南京</span>`;
+      } catch (e) {}
+    }
+
+    // Init
+    loadData();
+    loadWeather();
+  </script>
+</body>
+</html>

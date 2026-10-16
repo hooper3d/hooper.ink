@@ -1,0 +1,28 @@
+{
+  "name": "hooper-navigation-1080-preview",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node serve.cjs"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.3.4",
+    "@meteocons/svg": "0.1.0",
+    "@meteocons/svg-static": "0.1.0",
+    "@tiptap/extension-image": "3.31.4",
+    "@tiptap/extension-placeholder": "3.31.4",
+    "@tiptap/extension-task-item": "3.31.4",
+    "@tiptap/extension-task-list": "3.31.4",
+    "@tiptap/pm": "3.31.4",
+    "@tiptap/react": "3.31.4",
+    "@tiptap/starter-kit": "3.31.4",
+    "@xyflow/react": "12.12.0",
+    "antd": "6.6.5",
+    "dayjs": "1.11.23",
+    "esbuild": "0.28.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}

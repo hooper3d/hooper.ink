@@ -1,0 +1,17 @@
+{
+  "name": "nav",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "iconv-lite": "^0.7.2",
+    "rss-parser": "^3.13.0"
+  }
+}

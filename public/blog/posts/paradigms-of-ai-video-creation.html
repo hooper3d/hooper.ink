@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究 - Hooper 的博客</title>
+  <meta name="description" content="本文提出 AIGC 视频创作中存在控制型范式与涌现型范式两种根本性创作认识论，从哲学、技术与社会三个层面系统分析其理论基础与实践逻辑。">
+  <meta name="keywords" content="AIGC, 创作哲学, 人机协同, AI Agent, Hooper, hooper.ink, 博客">
+  <meta name="author" content="Hooper">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hooper.ink/blog/posts/paradigms-of-ai-video-creation.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究 - Hooper 的博客">
+  <meta property="og:description" content="本文提出 AIGC 视频创作中存在控制型范式与涌现型范式两种根本性创作认识论，从哲学、技术与社会三个层面系统分析其理论基础与实践逻辑。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hooper.ink/blog/posts/paradigms-of-ai-video-creation.html">
+  <meta property="og:site_name" content="Hooper 的博客">
+  <meta property="og:image" content="/blog/assets/images/cover-paradigms-of-ai-video-creation.webp">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究 - Hooper 的博客">
+  <meta name="twitter:description" content="本文提出 AIGC 视频创作中存在控制型范式与涌现型范式两种根本性创作认识论，从哲学、技术与社会三个层面系统分析其理论基础与实践逻辑。">
+  <meta name="twitter:image" content="/blog/assets/images/cover-paradigms-of-ai-video-creation.webp">
+
+  <meta property="article:published_time" content="2026-05-20">
+  <meta property="article:author" content="Hooper">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐅</text></svg>">
+
+  <!-- 依赖 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'], serif: ['Noto Serif SC', 'serif'] },
+          colors: {
+            cyber: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    .prose { line-height: 1.85; }
+    .prose h2 { font-size: 1.75rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(20,184,166,0.15); scroll-margin-top: 5rem; }
+    .prose h3 { font-size: 1.35rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.75rem; scroll-margin-top: 5rem; }
+    .prose p { margin-bottom: 1.1rem; }
+    .prose a { color: #14b8a6; text-decoration: underline; text-underline-offset: 3px; }
+    .prose a:hover { color: #0d9488; }
+    .prose blockquote { border-left: 4px solid #14b8a6; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: #475569; background: rgba(20,184,166,0.05); border-radius: 0 0.5rem 0.5rem 0; }
+    .dark .prose blockquote { color: #94a3b8; background: rgba(20,184,166,0.08); }
+    .prose code { background: rgba(20,184,166,0.12); color: #0d9488; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; font-family: 'SF Mono', 'Monaco', 'Consolas', monospace; }
+    .dark .prose code { background: rgba(45,212,191,0.18); color: #5eead4; }
+    .prose pre { background: #0f172a !important; border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(20,184,166,0.2); }
+    .prose pre code { background: transparent; color: #e2e8f0; padding: 0; font-size: 0.875rem; }
+    .prose ul, .prose ol { padding-left: 1.75rem; margin-bottom: 1.1rem; }
+    .prose li { margin-bottom: 0.4rem; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { border: 1px solid rgba(20,184,166,0.2); padding: 0.6rem 0.85rem; text-align: left; }
+    .prose th { background: rgba(20,184,166,0.1); font-weight: 600; }
+    .prose img { border-radius: 0.5rem; margin: 1.5rem auto; max-width: 100%; }
+    .prose hr { border: none; border-top: 1px dashed rgba(20,184,166,0.3); margin: 2rem 0; }
+    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,184,0.1); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(20,184,166,0.2); }
+    .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.04) 1px, transparent 1px); background-size: 32px 32px; }
+    .dark .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.06) 1px, transparent 1px); }
+    .tag { display: inline-block; padding: 0.125rem 0.625rem; background: rgba(20, 184, 166, 0.1); color: #0d9488; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem; }
+    .dark .tag { background: rgba(45, 212, 191, 0.15); color: #5eead4; }
+    .toc-sidebar { display: none; }
+    @media (min-width: 1024px) { .toc-sidebar { display: block; } }
+    .toc-link { display: block; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: #64748b; transition: all 0.2s; border-left: 2px solid transparent; }
+    .dark .toc-link { color: #94a3b8; }
+    .toc-link:hover { color: #0d9488; background: rgba(20,184,166,0.08); }
+    .dark .toc-link:hover { color: #2dd4bf; }
+    .toc-link.active { color: #0d9488; border-left-color: #14b8a6; background: rgba(20,184,166,0.08); }
+    .dark .toc-link.active { color: #2dd4bf; border-left-color: #2dd4bf; }
+    .toc-link-h3 { padding-left: 1rem; font-size: 0.8rem; }
+    .toc-link-h2 { font-weight: 500; }
+    @keyframes breathe { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200 bg-grid">
+<!-- Top Bar -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2 text-slate-700 dark:text-slate-200 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-paw"></i>
+          </div>
+          <span class="font-bold">hooper.ink</span>
+        </a>
+        <span class="text-slate-300 dark:text-slate-700">|</span>
+        <a href="/blog/" class="text-sm text-slate-500 dark:text-slate-400 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">博客</a>
+      </div>
+      <button id="themeToggle" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-moon text-slate-600 dark:text-slate-300"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex gap-8">
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar w-60 shrink-0">
+    <div class="sticky top-20 glass rounded-xl p-4">
+      <h3 class="text-sm font-bold mb-3 text-slate-700 dark:text-slate-200">
+        <i class="fas fa-list-ul mr-1.5 text-cyber-500"></i>目录
+      </h3>
+      <nav id="tocNav" class="space-y-1">
+        <!-- TOC injected by JS -->
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Article -->
+  <article class="flex-1 min-w-0">
+    <!-- Cover -->
+    
+    <div class="mb-8 rounded-2xl overflow-hidden">
+      <img src="/blog/assets/images/cover-paradigms-of-ai-video-creation.webp" alt="AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究 - Hooper 的博客" class="w-full h-64 object-cover">
+    </div>
+    
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
+      <span><i class="far fa-calendar mr-1"></i>2026-05-20</span>
+      <span>·</span>
+      <span><i class="fas fa-map-marker-alt mr-1"></i>南京</span>
+      <span>·</span>
+      <span><i class="far fa-clock mr-1"></i>8 分钟</span>
+      <span>·</span>
+      <span id="busuanzi_container_page_pv" class="hidden md:inline">
+        <i class="far fa-eye mr-1"></i>阅读 <span id="busuanzi_value_page_pv" class="font-semibold text-cyber-500">-</span>
+      </span>
+      
+      <span class="hidden md:inline">·</span>
+      <div class="hidden md:flex flex-wrap gap-1.5">
+        <span class="tag">AIGC</span><span class="tag">创作哲学</span><span class="tag">人机协同</span><span class="tag">AI Agent</span>
+      </div>
+      
+    </div>
+
+    <h1 class="text-4xl font-bold mb-6 leading-tight">AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究 - Hooper 的博客</h1>
+
+    <!-- Content -->
+    <div class="prose max-w-none text-slate-700 dark:text-slate-300">
+      <h2 id="_1">摘要</h2>
+<p>本文提出 AIGC 视频创作中存在两种根本性的创作认识论范式：<strong>控制型范式</strong>与<strong>涌现型范式</strong>。前者以人类经验为中心，将 AI 视为须被驯服的工具；后者以 AI 能力为起点，将创作定义为在未知产出中筛选与发现。两者的分歧不仅关乎方法，更触及创作主体性、创新本质和艺术所有权等根本问题。本文从哲学、技术与社会三个层面系统分析两种范式的理论基础、实践逻辑与深层张力，并指出这一分歧实质上是 AI 时代人类对"何为创作"这一元问题的两种根本回应。研究表明，这两种思潮各有其认识论依据，过度偏向任何一方都将导致创作实践的异化，而两者之间的批判性对话，正是 AIGC 创作走向成熟的必由之路。</p>
+<p><strong>关键词：</strong>AIGC；人机协同；创作主体性；涌现性创新；工具论；创作认识论</p>
+<hr />
+<h2 id="aiai">一、引言：从"用AI工具"到"与AI共创"的认识论断裂</h2>
+<p>生成式 AI（AIGC）进入创作领域，表面上是一场工具革命，深层里却是一场认识论危机。</p>
+<p>过去几十年，数字创作工具（Photoshop、Premiere、After Effects）的逻辑从未改变：工具是惰性的，执行是线性的，结果是可预测的。创作者的"经验"之所以有价值，正是因为工具的不透明——只有老法师才知道某个参数调多少会出效果，这种经验是一种<strong>隐性知识（tacit knowledge）</strong>，是门槛，是护城河。</p>
+<p>AIGC 打破了这个逻辑。Midjourney、Sora、Runway、Seedance……这些模型不再执行指令，而是<strong>理解意图之后自主生成</strong>。你输入"一匹马在星空下奔跑"，它给的不是"按照你的参数渲染"，而是给出一个它认为符合描述的"答案"——而这个答案，每次都不同，且不可完全控制。</p>
+<p>这一变化逼出了一个问题：<strong>当工具不再听你的，你还是创作者吗？</strong></p>
+<p>对这个问题的回答，分化出了两种截然不同的立场：</p>
+<ul>
+<li>一方说："我是老法师，我的经验比模型强，AI 必须听我的。"</li>
+<li>另一方说："我选择 AI，就是选择了一种重宇宙，我的角色是发现者，不是控制者。"</li>
+</ul>
+<p>这不是风格差异，不是熟练度差异，是<strong>两种对创作本身的不同理解</strong>。本文的目的，就是系统地解剖这两种思潮。</p>
+<h2 id="ai">二、控制型范式：我驯服 AI</h2>
+<h3 id="21">2.1 哲学基础：工具理性的延伸</h3>
+<p>控制型范式的认识论根基，是<strong>工具论（Instrumentalism）</strong>在 AI 时代的延续。</p>
+<p>在工具论的框架下，技术是人类意志的延伸，是达成目的的手段。一把锤子不会告诉你怎么敲钉子，一支笔不会替你写文章，一个 AI 模型——在控制型范式者看来——<strong>也不应该自作主张</strong>。</p>
+<p>这种思维有其深厚的现代性基础。从笛卡尔的"我思故我在"到启蒙运动对人类理性的高扬，西方现代性建立了一套以人为中心的世界图景：<strong>人是主体，自然是客体，工具是中介</strong>。创作者是主体，AI 是客体，作品是创作者意志的外化。这套框架运转了两百年，控制型范式者不过是把它平移到了 AIGC 场景。</p>
+<h3 id="22">2.2 实践逻辑：精密控制的生产线</h3>
+<p>在实践层面，控制型范式表现为对 AI 输出的<strong>全程把控</strong>：</p>
+<ul>
+<li>Prompt 工程师化：写 Prompt 如同写程序代码，要精确、要结构化、要减少歧义；</li>
+<li>迭代方向锁定：每次生成都设定明确的优化目标，"这个不对，再来"；</li>
+<li>后处理主导：生成只是初稿，真正的创作在后期的精修、剪辑和合成；</li>
+<li>经验护城河：将创作者个人的审美经验转化为 Prompt 技巧，形成可出售的专业能力。</li>
+</ul>
+<p>这一范式下，创作者的角色更接近<strong>导演</strong>而非"动手的人"——他不需要自己渲染，但必须精确告诉渲染引擎要什么。AI 是超级工人，创作者是老板娘/老板。</p>
+<h3 id="23">2.3 内在张力：控制的幻觉与经验的边界</h3>
+<p>然而，控制型范式存在一个根本性的自我矛盾：<strong>你无法真正驯服一个黑箱模型。</strong></p>
+<p>Diffusion Model 的工作机制是统计学习，不是规则执行。你以为你在"控制"AI，实际上你是在<strong>通过大量试错寻找 AI 的行为边界</strong>。这种边界的摸索，恰恰证明了 AI 的不可完全预测性——而这正是涌现型范式诞生的认识论前提。</p>
+<p>更深层的问题是：控制型范式将 AI 降格为"高级 Photoshop"，在某种意义上<strong>浪费了 AI 的核心价值</strong>——它的涌现能力。当你坚持让 AI 按你的路径走，你实际上是在用新工具强化旧思维，错过了 AI 带来的真正的创作可能性空间扩展。</p>
+<h2 id="ai_1">三、涌现型范式：我把机会给 AI</h2>
+<h3 id="31">3.1 哲学基础：接受不确定性为创作前提</h3>
+<p>涌现型范式的认识论根基，是<strong>建构论（Constructivism）</strong>与<strong>复杂性思维（Complexity Thinking）</strong>的融合。</p>
+<p>建构论认为，知识不是对客观世界的被动反映，而是认识主体与被认识对象之间交互作用的产物。AI 不是"反映"了你的 Prompt，而是<strong>以自己的方式理解</strong>了你的 Prompt。这种理解，混杂了训练数据中的模式、统计规律和模型权重中的隐性知识——这是人类创作者无法完全预判的。</p>
+<p>复杂性思维则提供了另一个视角：<strong>复杂系统会产生涌现属性</strong>——整体表现出任何单一组成部分都不具备的特性。将这个逻辑迁移到创作：当你把创作机会交给 AI，你不是在委托执行任务，而是在<strong>激活一个复杂系统的涌现潜能</strong>。</p>
+<p>这不是放弃创作，而是重新定义创作：<strong>创作不是在画布上作画，而是提出正确的问题，然后在答案中找到珍珠。</strong></p>
+<h3 id="32">3.2 实践逻辑：广度探索与敏锐筛选</h3>
+<p>涌现型范式的实践特征，与控制型范式形成了镜像对称：</p>
+<ul>
+<li><strong>Prompt 作为创意种子</strong>：不追求精确描述，而追求激活模型的有趣行为区域；</li>
+<li><strong>批量生成 + 高效筛选</strong>：一次生成多组，从中选择最接近创作意图的一个；</li>
+<li><strong>接受"意外的正确"</strong>：当 AI 的输出超出了你的预设，这种意外不是失败，而是 AI 提供了你未曾想到的可能性；</li>
+<li><strong>创作者转型为策展人</strong>：审美判断力从"动手能力"转向"选择能力"——知道什么是好的，比知道怎么做更重要。</li>
+</ul>
+<p>这种范式下，创作者更接近<strong>矿工</strong>——挖开AI这座山，然后从万千碎岩中寻找那闪闪发光的东西。这个角色的核心能力变了：不再是执行精度，而是<strong>审美判断力 + 概念敏感度 + 跨界联想能力</strong>。</p>
+<h3 id="33">3.3 内在张力：筛选者的权力与责任</h3>
+<p>涌现型范式也并非无懈可击。</p>
+<p>当创作的核心变成了"筛选"，一个问题随之浮现：<strong>筛选的标准是什么？</strong>如果筛选者的标准是模糊的、随意的，"AI创作"就沦为了随机掷骰子。另一方面，涌现型范式隐含了一个精英主义风险：如果所有人都依赖AI的随机涌现，谁来定义"好"的标准？</p>
+<p>更深层的是署名与所有权问题。在控制型范式下，作品是创作者的意志延伸，署名是清晰的。在涌现型范式下，作品是人与AI共同涌现的产物——<strong>这个"共同"如何分割？</strong>这是一个尚未被认真讨论的法律与伦理问题。</p>
+<h2 id="_2">四、两种范式的系统性比较</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>控制型范式</th>
+<th>涌现型范式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>认识论根基</td>
+<td>工具论 / 人类中心主义</td>
+<td>建构论 / 复杂性思维</td>
+</tr>
+<tr>
+<td>对 AI 的定位</td>
+<td>超级工具，须被控制</td>
+<td>创作伙伴，涌现之源</td>
+</tr>
+<tr>
+<td>创作者角色隐喻</td>
+<td>导演 / 工头 / 老法师</td>
+<td>矿工 / 策展人 / 发现者</td>
+</tr>
+<tr>
+<td>核心能力</td>
+<td>指令精确性 + 审美经验 + 后处理</td>
+<td>概念敏感度 + 审美判断力 + 跨界联想</td>
+</tr>
+<tr>
+<td>对意外的态度</td>
+<td>偏差，须纠正</td>
+<td>信号，须识别</td>
+</tr>
+<tr>
+<td>创作的定义</td>
+<td>意志的执行与精确实现</td>
+<td>在涌现中发现与筛选</td>
+</tr>
+<tr>
+<td>代表风险</td>
+<td>工具异化 / 浪费 AI 潜能</td>
+<td>标准模糊 / 署名困境</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">五、深层分歧：创作主体性的两种命运</h2>
+<p>两种范式真正分叉的地方，是对"创作主体性（creative agency）"的理解。</p>
+<p>控制型范式坚持<strong>主体性的完整性</strong>：创作者是意义的唯一来源，AI 只是执行通道。在这种框架下，AIGC 创作与传统创作在本体论上是同构的——都是"人通过工具表达意图"，只是工具更高级了。</p>
+<p>涌现型范式则承认<strong>主体性的分散</strong>：意义的来源不再是单一的，而是分布在创作者、模型、上下文之间。AI 的输出不是零意义的原材料，它本身就携带了模型对世界的理解——这是另一重主体的介入。</p>
+<p>这场分歧没有简单的正确答案。但有一点是确定的：<strong>两种范式都可能是逃避。</strong></p>
+<p>控制型范式可能是一种防御机制——用"我是主人"来抵御 AI 带来的存在性焦虑，拒绝承认自己的经验正在被重新定价。涌现型范式也可能是一种偷懒借口——用"让AI来"掩盖判断力的缺失，把随机性包装成开放性。</p>
+<p>真正有价值的创作，也许既不是纯粹的控制，也不是纯粹的放手，而是在两者之间找到一种<strong>批判性的张力</strong>——知道什么时候该坚持意图，什么时候该接受意外。</p>
+<h2 id="_4">六、结论：两种思潮，一个元问题</h2>
+<p>AIGC 视频创作中的两种思潮——控制型范式与涌现型范式——表面上关于如何使用工具，实质上是关于在 AI 时代如何理解创作、意义与人类主体性。这是一场没有裁判的辩论，因为它触及的不是技术问题，而是<strong>价值问题</strong>：你认为创作是什么？你想让 AI 在其中扮演什么角色？</p>
+<p>这不是一个可以一劳永逸回答的问题。每一位创作者，都需要在自己的实践中不断重新回答它。</p>
+<p>而 AI，既可以是驯服的对象，也可以是涌现的伙伴。选择的背后，是你对创作这件事最根本的理解。</p>
+<blockquote>
+<p>选择 AI，就是选择了某种重宇宙。但重宇宙里，你是主人还是探险者，决定了你将看到什么样的风景。</p>
+</blockquote>
+<h2 id="_5">参考文献</h2>
+<ol>
+<li>Boden, M. A. (2004). <em>The Creative Mind: Myths and Mechanisms</em> (2nd ed.). Routledge.</li>
+<li>Clark, A. (2015). <em>Surfing Uncertainty: Prediction, Action, and the Embodied Mind</em>. Oxford University Press.</li>
+<li>Dewey, J. (1934). <em>Art as Experience</em>. Minton, Balch &amp; Company.</li>
+<li>Floridi, L. &amp; Cowls, J. (2019). A Unified Framework of Five Principles for AI in Society. <em>Harvard Data Science Review</em>, 1(1).</li>
+<li>Hayles, N. K. (1999). <em>How We Became Posthuman: Virtual Bodies in Cybernetics, Literature, and Informatics</em>. University of Chicago Press.</li>
+<li>Latour, B. (1994). <em>On Technical Mediation</em>. Common Knowledge, 3(2), 29–64.</li>
+<li>Polanyi, M. (1966). <em>The Tacit Dimension</em>. University of Chicago Press.</li>
+<li>Rampton, S. (2023). Generative AI and the Crisis of Creative Authority. <em>Journal of Media Arts and Culture</em>, 14(2).</li>
+<li>Runyon, C. R. &amp; Winnegge, A. (2024). Human-AI Collaboration in Creative Work: A Framework for Ethical Design. <em>ACM Transactions on Computer-Human Interaction</em>, 31(3), 1–27.</li>
+<li>Zuboff, S. (2019). <em>The Age of Surveillance Capitalism</em>. PublicAffairs.</li>
+</ol>
+    </div>
+
+    <!-- Prev/Next -->
+    <nav class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
+      
+      <a href="/blog/posts/teach-hermes-to-draw.html" class="card-hover glass rounded-xl p-4 flex-1 group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-arrow-left mr-1"></i>上一篇</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">给 AI 助手构建视觉传达能力</div>
+      </a>
+      
+      <a href="/blog/" class="card-hover glass rounded-xl p-4 sm:w-48 text-center group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-th-list mr-1"></i>博客首页</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">所有文章</div>
+      </a>
+      
+      <a href="/blog/posts/trading-agents-ashare-learning.html" class="card-hover glass rounded-xl p-4 flex-1 text-right group">
+        <div class="text-xs text-slate-400 mb-1">下一篇<i class="fas fa-arrow-right ml-1"></i></div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造</div>
+      </a>
+      
+    </nav>
+
+    <!-- Giscus -->
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200">
+        <i class="far fa-comments mr-2 text-cyber-500"></i>评论
+      </h3>
+      <div class="giscus"></div>
+    </div>
+  </article>
+</div>
+
+<!-- TOC Script -->
+<script>
+(function() {
+  const article = document.querySelector('article .prose');
+  if (!article) return;
+  const headings = article.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  const nav = document.getElementById('tocNav');
+  headings.forEach((h, i) => {
+    h.id = h.id || ('h-' + i + '-' + h.textContent.trim().replace(/\s+/g, '-').toLowerCase().slice(0, 40));
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.className = 'toc-link ' + (h.tagName === 'H2' ? 'toc-link-h2' : 'toc-link-h3');
+    a.textContent = h.textContent.trim();
+    nav.appendChild(a);
+  });
+  // Scroll-spy
+  const tocLinks = nav.querySelectorAll('.toc-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = nav.querySelector('a[href="#' + e.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  headings.forEach(h => obs.observe(h));
+})();
+</script>
+
+<!-- Footer -->
+<footer class="mt-20 pb-8 text-center text-xs text-slate-400">
+  <p>Copyright &copy; 2026 Hooper 的数字领地 · 赛博老虎驻守中</p>
+  <p class="mt-1">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="hover:text-cyber-400 transition-colors">
+      苏ICP备2022029383号-1
+    </a>
+  </p>
+</footer>
+
+<script>
+  // Theme
+  const themeToggle = document.getElementById('themeToggle');
+  function setTheme(dark) {
+    if (dark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); }
+    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); }
+  }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+  }
+  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setTheme(true);
+  }
+
+  // highlight.js
+  if (typeof hljs !== 'undefined') { hljs.highlightAll(); }
+</script>
+
+
+<!-- Giscus Comments -->
+<script>
+  (function() {
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'hooper3d/hooper.ink');
+    script.setAttribute('data-repo-id', 'R_kgDOSGEnYQ');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOSGEnYc4C7Iyy');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    document.body.appendChild(script);
+  })();
+</script>
+
+
+
+<!-- busuanzi 阅读数 -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</body>
+</html>

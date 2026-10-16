@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /blog/posts/*.html?*
+
+Sitemap: https://hooper.ink/sitemap.xml

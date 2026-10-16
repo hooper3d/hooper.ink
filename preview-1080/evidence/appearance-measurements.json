@@ -1,0 +1,88 @@
+{
+  "light": [
+    {
+      "aligned": {
+        "left": true,
+        "poetry": true,
+        "right": true,
+        "search": true
+      },
+      "githubFilter": "none",
+      "links": 24,
+      "outOfBounds": [],
+      "overflow": [],
+      "page": [
+        1920,
+        1080
+      ],
+      "readOnly": "false",
+      "viewport": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "aligned": {
+        "left": true,
+        "poetry": true,
+        "right": true,
+        "search": true
+      },
+      "githubFilter": "none",
+      "links": 24,
+      "outOfBounds": [],
+      "overflow": [],
+      "page": [
+        1920,
+        900
+      ],
+      "readOnly": "false",
+      "viewport": [
+        1920,
+        900
+      ]
+    },
+    {
+      "aligned": {
+        "left": true,
+        "poetry": true,
+        "right": true,
+        "search": true
+      },
+      "githubFilter": "none",
+      "links": 24,
+      "outOfBounds": [],
+      "overflow": [],
+      "page": [
+        1319,
+        884
+      ],
+      "readOnly": "false",
+      "viewport": [
+        1319,
+        884
+      ]
+    }
+  ],
+  "dark": {
+    "aligned": {
+      "left": true,
+      "poetry": true,
+      "right": true,
+      "search": true
+    },
+    "githubFilter": "brightness(0) invert(0.9)",
+    "links": 24,
+    "outOfBounds": [],
+    "overflow": [],
+    "page": [
+      1920,
+      1080
+    ],
+    "readOnly": "false",
+    "viewport": [
+      1920,
+      1080
+    ]
+  }
+}

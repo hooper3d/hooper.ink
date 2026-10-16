@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Hooper Navi</title>
+  <link rel="icon" href="./assets/hooper.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./ui/topbar.css">
+  <link rel="stylesheet" href="./topbar.css">
+  <script>try { if ((localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark') document.documentElement.classList.add('dark'); } catch {}</script>
+  <script src="./data.js" defer></script>
+  <script src="./app.js" defer></script>
+  <script src="./ui/topbar.js" defer></script>
+  <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="Hooper Navi 首页"><span class="brand-logo" aria-hidden="true"></span><h1 aria-label="Hooper Navi"><span class="brand-wordmark" aria-hidden="true"></span></h1></a>
+      <div class="header-actions">
+        <div id="topbarTools"></div>
+        <button id="themeToggle" class="icon-button" aria-label="切换深色主题"><i class="fas fa-moon" aria-hidden="true"></i></button>
+        <div id="accountTools"></div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="poetry" aria-label="每日诗词">
+      <div id="poetryContent"><p id="poetrySentence">洛阳亲友如相问，一片冰心在玉壶。</p><p id="poetryMeta">【唐代】王昌龄 《芙蓉楼送辛渐》</p></div>
+      <button id="poetryRefresh" class="icon-button" aria-label="换一句诗词"><i class="fas fa-rotate-right" aria-hidden="true"></i></button>
+    </section>
+    <section class="search-area" aria-label="搜索">
+      <form id="searchForm" class="search-box" role="search" action="https://www.google.com/search" method="get" target="_blank" rel="noopener noreferrer" autocomplete="off">
+        <select id="searchMode" aria-label="搜索范围"><option value="google">Google</option><option value="site">本站</option></select>
+        <input id="searchInput" name="q" type="search" aria-label="Google 搜索" placeholder="搜索…" autocomplete="off" spellcheck="false">
+        <button id="clearSearch" type="button" class="icon-button" aria-label="清空关键词" hidden><i class="fas fa-xmark" aria-hidden="true"></i></button>
+        <button id="searchSubmit" type="submit" class="icon-button" aria-label="Google 搜索"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></button>
+      </form>
+    </section>
+    <nav id="categoryFilters" aria-label="网站分类">
+      <button data-cat="all" aria-pressed="true">全部</button>
+      <button data-cat="favorites" aria-pressed="false"><i class="far fa-star" aria-hidden="true"></i> 常用</button>
+      <button data-cat="ai" aria-pressed="false">AI 工具</button>
+      <button data-cat="dev" aria-pressed="false">开发</button>
+      <button data-cat="aigc" aria-pressed="false">AIGC</button>
+      <button data-cat="productivity" aria-pressed="false">效率</button>
+      <button data-cat="my" aria-pressed="false">我的项目</button>
+      <span id="resultStatus" class="result-count" role="status" aria-live="polite"></span>
+    </nav>
+    <div id="linksGrid" aria-label="网站列表"></div>
+    <section id="emptyState" hidden>
+      <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+      <h2>无结果</h2><p id="emptyMessage"></p>
+      <div><button id="searchAll" aria-label="搜索全部分类">全部</button><button id="emptyClear" aria-label="清空关键词">清空</button></div>
+    </section>
+  </main>
+  <div id="desktopDock"></div>
+  <footer>
+    <span>© 2026 胡珀的导航站</span>
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">苏ICP备2022029383号-1</a>
+  </footer>
+  <dialog id="schoolDialog" aria-labelledby="schoolTitle"><h2 id="schoolTitle">查学区</h2><p>在微信小程序中搜索「查学区」。</p><form method="dialog"><button>知道了</button></form></dialog>
+</body>
+</html>

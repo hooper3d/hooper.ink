@@ -1,0 +1,48 @@
+# Hooper 的博客 - 站级配置
+# 改这里就能改全站：站名、Hooper 信息、评论、统计
+
+site:
+  name: "Hooper 的博客"
+  subtitle: "技术随笔 · AI 实操 · 独立开发"
+  description: "Hooper 的技术博客，记录独立开发、AI Agent、AIGC 实操经验。口语化、重实操、第一人称。"
+  author: "Hooper"
+  author_short: "Hooper"
+  base_url: "https://hooper.ink"
+  blog_path: "/blog/"
+  posts_path: "/blog/posts/"
+  locale: "zh-CN"
+  og_image: "/blog/assets/images/og-default.png"
+
+# 评论系统（Giscus）
+giscus:
+  enabled: true
+  repo: "hooper3d/hooper.ink"
+  repo_id: "R_kgDOSGEnYQ"
+  category: "General"
+  category_id: "DIC_kwDOSGEnYc4C7Iyy"
+  mapping: "pathname"
+  strict: "0"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  input_position: "bottom"
+  theme: "preferred_color_scheme"
+  lang: "zh-CN"
+  loading: "lazy"
+
+# 阅读数（busuanzi 不蒜子）
+busuanzi:
+  enabled: true
+  # 不蒜子纯前端 CDN，无需后端
+  js_url: "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"
+
+# 主题色
+theme:
+  primary: "cyber"  # tailwind color name
+  primary_hex: "#14b8a6"
+  dark_mode_default: true
+
+# 构建
+build:
+  output_dir: "/home/agentuser/nav/public/blog"
+  assets_dir: "assets"  # 相对 posts_path
+  cover_placeholder: "/blog/assets/images/cover-placeholder.svg"

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>从零搭建个人导航站：赛博老虎的上线之旅 - Hooper 的博客</title>
+  <meta name="description" content="刚折腾完小龙虾(openclaw) 又出来一匹马（Cyber Tiger ），为了给这匹赛博老虎按个家，把原来的个人导航站拆了重新开发。记录搭建过程中遇到的坑和心得。">
+  <meta name="keywords" content="前端, 部署, 个人项目, Hooper, hooper.ink, 博客">
+  <meta name="author" content="Hooper">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hooper.ink/blog/posts/rebuild-nav-site.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="从零搭建个人导航站：赛博老虎的上线之旅 - Hooper 的博客">
+  <meta property="og:description" content="刚折腾完小龙虾(openclaw) 又出来一匹马（Cyber Tiger ），为了给这匹赛博老虎按个家，把原来的个人导航站拆了重新开发。记录搭建过程中遇到的坑和心得。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hooper.ink/blog/posts/rebuild-nav-site.html">
+  <meta property="og:site_name" content="Hooper 的博客">
+  <meta property="og:image" content="/blog/assets/images/cover-rebuild-nav-site.webp">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="从零搭建个人导航站：赛博老虎的上线之旅 - Hooper 的博客">
+  <meta name="twitter:description" content="刚折腾完小龙虾(openclaw) 又出来一匹马（Cyber Tiger ），为了给这匹赛博老虎按个家，把原来的个人导航站拆了重新开发。记录搭建过程中遇到的坑和心得。">
+  <meta name="twitter:image" content="/blog/assets/images/cover-rebuild-nav-site.webp">
+
+  <meta property="article:published_time" content="2026-04-18">
+  <meta property="article:author" content="Hooper">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐅</text></svg>">
+
+  <!-- 依赖 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'], serif: ['Noto Serif SC', 'serif'] },
+          colors: {
+            cyber: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    .prose { line-height: 1.85; }
+    .prose h2 { font-size: 1.75rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(20,184,166,0.15); scroll-margin-top: 5rem; }
+    .prose h3 { font-size: 1.35rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.75rem; scroll-margin-top: 5rem; }
+    .prose p { margin-bottom: 1.1rem; }
+    .prose a { color: #14b8a6; text-decoration: underline; text-underline-offset: 3px; }
+    .prose a:hover { color: #0d9488; }
+    .prose blockquote { border-left: 4px solid #14b8a6; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: #475569; background: rgba(20,184,166,0.05); border-radius: 0 0.5rem 0.5rem 0; }
+    .dark .prose blockquote { color: #94a3b8; background: rgba(20,184,166,0.08); }
+    .prose code { background: rgba(20,184,166,0.12); color: #0d9488; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; font-family: 'SF Mono', 'Monaco', 'Consolas', monospace; }
+    .dark .prose code { background: rgba(45,212,191,0.18); color: #5eead4; }
+    .prose pre { background: #0f172a !important; border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(20,184,166,0.2); }
+    .prose pre code { background: transparent; color: #e2e8f0; padding: 0; font-size: 0.875rem; }
+    .prose ul, .prose ol { padding-left: 1.75rem; margin-bottom: 1.1rem; }
+    .prose li { margin-bottom: 0.4rem; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { border: 1px solid rgba(20,184,166,0.2); padding: 0.6rem 0.85rem; text-align: left; }
+    .prose th { background: rgba(20,184,166,0.1); font-weight: 600; }
+    .prose img { border-radius: 0.5rem; margin: 1.5rem auto; max-width: 100%; }
+    .prose hr { border: none; border-top: 1px dashed rgba(20,184,166,0.3); margin: 2rem 0; }
+    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,184,0.1); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(20,184,166,0.2); }
+    .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.04) 1px, transparent 1px); background-size: 32px 32px; }
+    .dark .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.06) 1px, transparent 1px); }
+    .tag { display: inline-block; padding: 0.125rem 0.625rem; background: rgba(20, 184, 166, 0.1); color: #0d9488; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem; }
+    .dark .tag { background: rgba(45, 212, 191, 0.15); color: #5eead4; }
+    .toc-sidebar { display: none; }
+    @media (min-width: 1024px) { .toc-sidebar { display: block; } }
+    .toc-link { display: block; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: #64748b; transition: all 0.2s; border-left: 2px solid transparent; }
+    .dark .toc-link { color: #94a3b8; }
+    .toc-link:hover { color: #0d9488; background: rgba(20,184,166,0.08); }
+    .dark .toc-link:hover { color: #2dd4bf; }
+    .toc-link.active { color: #0d9488; border-left-color: #14b8a6; background: rgba(20,184,166,0.08); }
+    .dark .toc-link.active { color: #2dd4bf; border-left-color: #2dd4bf; }
+    .toc-link-h3 { padding-left: 1rem; font-size: 0.8rem; }
+    .toc-link-h2 { font-weight: 500; }
+    @keyframes breathe { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200 bg-grid">
+<!-- Top Bar -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2 text-slate-700 dark:text-slate-200 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-paw"></i>
+          </div>
+          <span class="font-bold">hooper.ink</span>
+        </a>
+        <span class="text-slate-300 dark:text-slate-700">|</span>
+        <a href="/blog/" class="text-sm text-slate-500 dark:text-slate-400 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">博客</a>
+      </div>
+      <button id="themeToggle" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-moon text-slate-600 dark:text-slate-300"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex gap-8">
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar w-60 shrink-0">
+    <div class="sticky top-20 glass rounded-xl p-4">
+      <h3 class="text-sm font-bold mb-3 text-slate-700 dark:text-slate-200">
+        <i class="fas fa-list-ul mr-1.5 text-cyber-500"></i>目录
+      </h3>
+      <nav id="tocNav" class="space-y-1">
+        <!-- TOC injected by JS -->
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Article -->
+  <article class="flex-1 min-w-0">
+    <!-- Cover -->
+    
+    <div class="mb-8 rounded-2xl overflow-hidden">
+      <img src="/blog/assets/images/cover-rebuild-nav-site.webp" alt="从零搭建个人导航站：赛博老虎的上线之旅 - Hooper 的博客" class="w-full h-64 object-cover">
+    </div>
+    
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
+      <span><i class="far fa-calendar mr-1"></i>2026-04-18</span>
+      <span>·</span>
+      <span><i class="fas fa-map-marker-alt mr-1"></i>南京</span>
+      <span>·</span>
+      <span><i class="far fa-clock mr-1"></i>3 分钟</span>
+      <span>·</span>
+      <span id="busuanzi_container_page_pv" class="hidden md:inline">
+        <i class="far fa-eye mr-1"></i>阅读 <span id="busuanzi_value_page_pv" class="font-semibold text-cyber-500">-</span>
+      </span>
+      
+      <span class="hidden md:inline">·</span>
+      <div class="hidden md:flex flex-wrap gap-1.5">
+        <span class="tag">前端</span><span class="tag">部署</span><span class="tag">个人项目</span>
+      </div>
+      
+    </div>
+
+    <h1 class="text-4xl font-bold mb-6 leading-tight">从零搭建个人导航站：赛博老虎的上线之旅 - Hooper 的博客</h1>
+
+    <!-- Content -->
+    <div class="prose max-w-none text-slate-700 dark:text-slate-300">
+      <p>刚折腾完小龙虾(openclaw) 又出来一匹马（Cyber Tiger ），为了给这匹赛博老虎按个家，我把原来的个人导航站拆了，重新开发了一套。今天结束后来记录下这次重搭的全过程，包括技术选型、遇到的坑、以及一些心得。</p>
+<h2 id="_1">为什么要重构</h2>
+<p>原来的导航站是我自己之前随便搭的，用的是Webstack模板，功能上能用但是代码里一大堆用不着的东西，我也没兴趣维护。现在有了赛博老虎这个助手，一切不一样了 —— 它可以帮我维护、部署、更新，所以我决定正式起一个干净的项目。</p>
+<p>我的需求很简单：</p>
+<ul>
+<li>深色主题，看着舒服</li>
+<li>卡片式布局，一目了然</li>
+<li>能搜索、能分类</li>
+<li>手机上能看</li>
+<li>以后放博客也在这个域名下</li>
+</ul>
+<h2 id="_2">技术选型</h2>
+<p>我没有用什么前端框架，就是最原始的 HTML + Tailwind CSS（CDN）+ 一点点 JavaScript。理由是：</p>
+<ol>
+<li><strong>无依赖</strong>：不用 npm install 半天，不用担心包管理器出问题</li>
+<li><strong>静态部署</strong>：一个 HTML 文件就是全部，部署到任何服务器都行</li>
+<li><strong>赛博老虎能维护</strong>：以后要加网站、改样式，告诉它就行，不用我自己动手</li>
+</ol>
+<p>后端服务用的是 Node.js 内置的 <code>http</code> 模块，简单到就几行代码，负责静态文件服务和路由。用 systemd 守护，开机自启。</p>
+<h2 id="_3">过程中遇到的坑</h2>
+<h3 id="1">1. 端口问题</h3>
+<p>一开始服务跑在 8080 端口，但我想直接用 80 端口访问。本来想让 Node 直接监听 80，结果发现非 root 用户没权限。</p>
+<p>后来的解法是 <strong>iptables 端口转发</strong>：</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>iptables<span class="w"> </span>-t<span class="w"> </span>nat<span class="w"> </span>-A<span class="w"> </span>PREROUTING<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">80</span><span class="w"> </span>-j<span class="w"> </span>REDIRECT<span class="w"> </span>--to-port<span class="w"> </span><span class="m">8080</span>
+</code></pre></div>
+
+<p>这样外部访问 80 端口会自动转到 8080，Node 还是普通用户运行，安全。但这里有个隐藏坑 —— <code>iptables-persistent</code> 要安装，不然重启后规则丢失。</p>
+<h3 id="2-ssl">2. SSL 证书</h3>
+<p>证书是之前买好的，但配置 Nginx 时忘了检查是否监听 443 端口。配置文件写对了但 Nginx 没有重新加载，导致 HTTPS 访问拒绝连接。</p>
+<p>后来用 <code>sudo nginx -s reload</code> 解决。经验是：<strong>改完配置一定要 reload，不能只停在 syntax ok</strong>。</p>
+<h3 id="3-js">3. JS 报错导致页面空白</h3>
+<p>这是最蠢的一个 bug。我让老虎改 footer 加上备案号，结果它把 <code>updateTime</code> 元素删了，但 JS 底部还在试图读取这个元素：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;updateTime&#39;</span><span class="p">).</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+</code></pre></div>
+
+<p>报错后整个 JS 执行中断，<code>render()</code> 渲染函数没执行，所有导航卡片全消失。</p>
+<p>修复很简单，加个空值判断：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">el</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;updateTime&#39;</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">el</span><span class="p">)</span><span class="w"> </span><span class="nx">el</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+</code></pre></div>
+
+<p>这个坑告诉我：<strong>只要动 JS，就要做错误处理</strong>，不然一行代码放倒整个页面。</p>
+<h2 id="_4">最终架构</h2>
+<p>现在的架构是这样的：</p>
+<div class="highlight"><pre><span></span><code>用户 → 443 HTTPS → Nginx (SSL 终止)
+              ↓
+         8080 HTTP → Node.js 导航站
+              ↓
+         /blog/    → 静态 HTML 博客
+</code></pre></div>
+
+<ul>
+<li>Nginx 处理 SSL 和 80 → 443 跳转</li>
+<li>Node.js 负责主站和博客的静态文件服务</li>
+<li>systemd 守护，开机自启</li>
+</ul>
+<h2 id="_5">心得</h2>
+<p>这次重构最大的感受是：<strong>有 AI 助手维护，和没有，完全是两回事</strong>。</p>
+<p>以前我自己搭站点，代码写完就不想管了，想加个功能都得自己动手。现在不一样，我告诉老虎"加个博客"、"改个链接"，它秒级完成。这种感觉很奇妙，像是自己的项目有了一个不休假的运维。</p>
+<p>当然，也有需要注意的地方。AI 助手虽然强，但它不是全知全能，你得把需求说清楚，特别是涉及安全的操作（比如端口转发、证书配置），要自己把关。最后，一切代码部署上线前，<em>备份始终是第一优先级</em>。</p>
+<hr />
+<blockquote>
+<p>这是我在这个博客的第一篇文章。以后会继续写关于 AI 开发、出海、AIGC 的实操经验。如果你也在搞独立开发，欢迎交流。</p>
+</blockquote>
+    </div>
+
+    <!-- Prev/Next -->
+    <nav class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
+      
+      <div class="flex-1"></div>
+      
+      <a href="/blog/" class="card-hover glass rounded-xl p-4 sm:w-48 text-center group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-th-list mr-1"></i>博客首页</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">所有文章</div>
+      </a>
+      
+      <a href="/blog/posts/contenteditable-dom-battle.html" class="card-hover glass rounded-xl p-4 flex-1 text-right group">
+        <div class="text-xs text-slate-400 mb-1">下一篇<i class="fas fa-arrow-right ml-1"></i></div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">contenteditable 踩坑记：一场与 DOM 的四次博弈</div>
+      </a>
+      
+    </nav>
+
+    <!-- Giscus -->
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200">
+        <i class="far fa-comments mr-2 text-cyber-500"></i>评论
+      </h3>
+      <div class="giscus"></div>
+    </div>
+  </article>
+</div>
+
+<!-- TOC Script -->
+<script>
+(function() {
+  const article = document.querySelector('article .prose');
+  if (!article) return;
+  const headings = article.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  const nav = document.getElementById('tocNav');
+  headings.forEach((h, i) => {
+    h.id = h.id || ('h-' + i + '-' + h.textContent.trim().replace(/\s+/g, '-').toLowerCase().slice(0, 40));
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.className = 'toc-link ' + (h.tagName === 'H2' ? 'toc-link-h2' : 'toc-link-h3');
+    a.textContent = h.textContent.trim();
+    nav.appendChild(a);
+  });
+  // Scroll-spy
+  const tocLinks = nav.querySelectorAll('.toc-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = nav.querySelector('a[href="#' + e.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  headings.forEach(h => obs.observe(h));
+})();
+</script>
+
+<!-- Footer -->
+<footer class="mt-20 pb-8 text-center text-xs text-slate-400">
+  <p>Copyright &copy; 2026 Hooper 的数字领地 · 赛博老虎驻守中</p>
+  <p class="mt-1">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="hover:text-cyber-400 transition-colors">
+      苏ICP备2022029383号-1
+    </a>
+  </p>
+</footer>
+
+<script>
+  // Theme
+  const themeToggle = document.getElementById('themeToggle');
+  function setTheme(dark) {
+    if (dark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); }
+    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); }
+  }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+  }
+  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setTheme(true);
+  }
+
+  // highlight.js
+  if (typeof hljs !== 'undefined') { hljs.highlightAll(); }
+</script>
+
+
+<!-- Giscus Comments -->
+<script>
+  (function() {
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'hooper3d/hooper.ink');
+    script.setAttribute('data-repo-id', 'R_kgDOSGEnYQ');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOSGEnYc4C7Iyy');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    document.body.appendChild(script);
+  })();
+</script>
+
+
+
+<!-- busuanzi 阅读数 -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</body>
+</html>

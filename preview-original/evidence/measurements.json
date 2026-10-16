@@ -1,0 +1,696 @@
+[
+  {
+    "label": "light-1920x900",
+    "active": "切换深色主题",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 830,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "search-claude",
+    "active": "搜索站内网站",
+    "animations": [],
+    "count": 1,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 370,
+      "height": 80,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "Claude",
+    "status": "全部 · 1 个网站 · 搜索结果",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "category-ai",
+    "active": "",
+    "animations": [],
+    "count": 7,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 462,
+      "height": 172,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "",
+    "status": "AI 工具 · 7 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "ai-search-github-empty",
+    "active": "搜索站内网站",
+    "animations": [],
+    "count": 0,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "GitHub",
+    "status": "AI 工具 · 0 个网站 · 搜索结果",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "search-all-preserves-query",
+    "active": "搜索站内网站",
+    "animations": [],
+    "count": 1,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 370,
+      "height": 80,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "GitHub",
+    "status": "全部 · 1 个网站 · 搜索结果",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "favorite-github-keyboard",
+    "active": "GitHub：取消常用",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 1,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 830,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "favorites-filter",
+    "active": "",
+    "animations": [],
+    "count": 1,
+    "favoriteCount": 1,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 370,
+      "height": 80,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "北郭清溪一带流，红桥风物眼中秋，绿杨城郭是扬州。",
+    "query": "",
+    "status": "常用 · 1 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "favorites-persist-after-reload",
+    "active": "",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 1,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 830,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "洛阳亲友如相问，一片冰心在玉壶。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "unfavorite-empty-restores-filter-focus",
+    "active": "",
+    "animations": [],
+    "count": 0,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "试问江南诸伴侣，谁似我，醉扬州。",
+    "query": "",
+    "status": "常用 · 0 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "empty-clear-keeps-ai-category",
+    "active": "搜索站内网站",
+    "animations": [],
+    "count": 7,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 462,
+      "height": 172,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "试问江南诸伴侣，谁似我，醉扬州。",
+    "query": "",
+    "status": "AI 工具 · 7 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "dark-1920x900",
+    "active": "切换浅色主题",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 830,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "春风十里扬州路，卷上珠帘总不如。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "dark",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "dark-1920x1080",
+    "active": "切换浅色主题",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 1080,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 1032,
+      "width": 1440,
+      "x": 240,
+      "y": 1032
+    },
+    "grid": {
+      "bottom": 878,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 338,
+      "width": 1392,
+      "x": 264,
+      "y": 338
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      1080
+    ],
+    "poem": "春风十里扬州路，卷上珠帘总不如。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "dark",
+    "viewport": [
+      1920,
+      1080
+    ]
+  },
+  {
+    "label": "light-1920x1080",
+    "active": "切换深色主题",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 1080,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 1032,
+      "width": 1440,
+      "x": 240,
+      "y": 1032
+    },
+    "grid": {
+      "bottom": 878,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 338,
+      "width": 1392,
+      "x": 264,
+      "y": 338
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      1080
+    ],
+    "poem": "春风十里扬州路，卷上珠帘总不如。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      1080
+    ]
+  },
+  {
+    "label": "light-1319x884",
+    "active": "切换深色主题",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 934,
+      "height": 48,
+      "left": 0,
+      "right": 1304,
+      "top": 886,
+      "width": 1304,
+      "x": 0,
+      "y": 886
+    },
+    "grid": {
+      "bottom": 886,
+      "height": 596,
+      "left": 24,
+      "right": 1280,
+      "top": 290,
+      "width": 1256,
+      "x": 24,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1304,
+      934
+    ],
+    "poem": "春风十里扬州路，卷上珠帘总不如。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1319,
+      884
+    ]
+  },
+  {
+    "label": "light-390x844",
+    "active": "切换深色主题",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 2768,
+      "height": 54,
+      "left": 0,
+      "right": 375,
+      "top": 2714,
+      "width": 375,
+      "x": 0,
+      "y": 2714
+    },
+    "grid": {
+      "bottom": 2714,
+      "height": 2388,
+      "left": 16,
+      "right": 359,
+      "top": 326,
+      "width": 343,
+      "x": 16,
+      "y": 326
+    },
+    "overflow": [],
+    "page": [
+      375,
+      2768
+    ],
+    "poem": "春风十里扬州路，卷上珠帘总不如。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "light-1319x884-final",
+    "active": "",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 884,
+      "height": 48,
+      "left": 0,
+      "right": 1319,
+      "top": 836,
+      "width": 1319,
+      "x": 0,
+      "y": 836
+    },
+    "grid": {
+      "bottom": 826,
+      "height": 540,
+      "left": 24,
+      "right": 1295,
+      "top": 286,
+      "width": 1271,
+      "x": 24,
+      "y": 286
+    },
+    "overflow": [],
+    "page": [
+      1319,
+      884
+    ],
+    "poem": "金陵城上西楼，倚清秋。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1319,
+      884
+    ]
+  },
+  {
+    "label": "light-1920x900-final",
+    "active": "site-link",
+    "animations": [],
+    "count": 24,
+    "favoriteCount": 0,
+    "footer": {
+      "bottom": 900,
+      "height": 48,
+      "left": 240,
+      "right": 1680,
+      "top": 852,
+      "width": 1440,
+      "x": 240,
+      "y": 852
+    },
+    "grid": {
+      "bottom": 830,
+      "height": 540,
+      "left": 264,
+      "right": 1656,
+      "top": 290,
+      "width": 1392,
+      "x": 264,
+      "y": 290
+    },
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "poem": "金陵城上西楼，倚清秋。",
+    "query": "",
+    "status": "全部 · 24 个网站",
+    "theme": "",
+    "viewport": [
+      1920,
+      900
+    ]
+  },
+  {
+    "label": "final-dark-1920x900",
+    "count": 24,
+    "overflow": [],
+    "page": [
+      1920,
+      900
+    ],
+    "theme": "dark",
+    "viewport": [
+      1920,
+      900
+    ]
+  }
+]

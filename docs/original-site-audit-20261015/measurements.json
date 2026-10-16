@@ -1,0 +1,252 @@
+{
+  "original1080": {
+    "categories": {
+      "bottom": 344,
+      "height": 34,
+      "width": 672,
+      "x": 617,
+      "y": 310
+    },
+    "count": 24,
+    "firstCard": {
+      "bottom": 474,
+      "height": 90,
+      "width": 292,
+      "x": 345,
+      "y": 384
+    },
+    "footer": {
+      "bottom": 1200,
+      "height": 100,
+      "width": 1905,
+      "x": 0,
+      "y": 1100
+    },
+    "grid": {
+      "bottom": 1004,
+      "height": 620,
+      "width": 1216,
+      "x": 345,
+      "y": 384
+    },
+    "lastCard": {
+      "bottom": 1004,
+      "height": 90,
+      "width": 292,
+      "x": 1269,
+      "y": 914
+    },
+    "main": {
+      "bottom": 1036,
+      "height": 970,
+      "width": 1280,
+      "x": 313,
+      "y": 66
+    },
+    "page": [
+      1905,
+      1200
+    ],
+    "poetry": {
+      "bottom": 204,
+      "height": 106,
+      "width": 672,
+      "x": 617,
+      "y": 98
+    },
+    "search": {
+      "bottom": 294,
+      "height": 58,
+      "width": 672,
+      "x": 617,
+      "y": 236
+    },
+    "truncated": [
+      {
+        "contentWidth": 179,
+        "text": "Hermes Agent 中文社区",
+        "width": 154
+      },
+      {
+        "contentWidth": 171,
+        "text": "AI 创作平台，图片视频生成",
+        "width": 154
+      },
+      {
+        "contentWidth": 168,
+        "text": "10万虚拟资金 A股模拟交易",
+        "width": 154
+      },
+      {
+        "contentWidth": 197,
+        "text": "14名AI Agent多智能体投研系统",
+        "width": 154
+      }
+    ],
+    "viewport": [
+      1920,
+      1080
+    ]
+  },
+  "original900": {
+    "background": "rgb(248, 250, 252)",
+    "cards": [
+      {
+        "bottom": 474,
+        "fullyVisible": true,
+        "title": "ChatGPT",
+        "top": 384
+      },
+      {
+        "bottom": 474,
+        "fullyVisible": true,
+        "title": "Claude",
+        "top": 384
+      },
+      {
+        "bottom": 474,
+        "fullyVisible": true,
+        "title": "Gemini",
+        "top": 384
+      },
+      {
+        "bottom": 474,
+        "fullyVisible": true,
+        "title": "Tushare",
+        "top": 384
+      },
+      {
+        "bottom": 580,
+        "fullyVisible": true,
+        "title": "MiniMax",
+        "top": 490
+      },
+      {
+        "bottom": 580,
+        "fullyVisible": true,
+        "title": "DeepSeek",
+        "top": 490
+      },
+      {
+        "bottom": 580,
+        "fullyVisible": true,
+        "title": "火山引擎",
+        "top": 490
+      },
+      {
+        "bottom": 580,
+        "fullyVisible": true,
+        "title": "LuckyAPI",
+        "top": 490
+      },
+      {
+        "bottom": 686,
+        "fullyVisible": true,
+        "title": "Hermes Agent 中文社区",
+        "top": 596
+      },
+      {
+        "bottom": 686,
+        "fullyVisible": true,
+        "title": "GitHub",
+        "top": 596
+      },
+      {
+        "bottom": 686,
+        "fullyVisible": true,
+        "title": "腾讯云",
+        "top": 596
+      },
+      {
+        "bottom": 686,
+        "fullyVisible": true,
+        "title": "Figma",
+        "top": 596
+      },
+      {
+        "bottom": 792,
+        "fullyVisible": true,
+        "title": "Dribbble",
+        "top": 702
+      },
+      {
+        "bottom": 792,
+        "fullyVisible": true,
+        "title": "Coolors",
+        "top": 702
+      },
+      {
+        "bottom": 792,
+        "fullyVisible": true,
+        "title": "即梦 AI",
+        "top": 702
+      },
+      {
+        "bottom": 792,
+        "fullyVisible": true,
+        "title": "Excalidraw",
+        "top": 702
+      },
+      {
+        "bottom": 898,
+        "fullyVisible": true,
+        "title": "TinyPNG",
+        "top": 808
+      },
+      {
+        "bottom": 898,
+        "fullyVisible": true,
+        "title": "查学区",
+        "top": 808
+      },
+      {
+        "bottom": 898,
+        "fullyVisible": true,
+        "title": "老虎的音乐站",
+        "top": 808
+      },
+      {
+        "bottom": 898,
+        "fullyVisible": true,
+        "title": "个人博客",
+        "top": 808
+      },
+      {
+        "bottom": 1004,
+        "fullyVisible": false,
+        "title": "虚拟交易盘",
+        "top": 914
+      },
+      {
+        "bottom": 1004,
+        "fullyVisible": false,
+        "title": "A股投研终端",
+        "top": 914
+      },
+      {
+        "bottom": 1004,
+        "fullyVisible": false,
+        "title": "今日 AI 圈",
+        "top": 914
+      },
+      {
+        "bottom": 1004,
+        "fullyVisible": false,
+        "title": "AIGC 视频站",
+        "top": 914
+      }
+    ],
+    "footerColor": "rgb(148, 163, 184)",
+    "page": [
+      1905,
+      1200
+    ],
+    "placeholderColor": "rgb(148, 163, 184)",
+    "searchLabel": null,
+    "themeLabel": null,
+    "viewport": [
+      1920,
+      900
+    ]
+  }
+}

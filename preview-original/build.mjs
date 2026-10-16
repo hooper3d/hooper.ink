@@ -1,0 +1,11 @@
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+import {copyFileSync} from 'node:fs';
+const require=createRequire(import.meta.url);
+const {build}=require('../preview-1080/node_modules/esbuild');
+const root=path.dirname(fileURLToPath(import.meta.url));
+await build({entryPoints:[path.join(root,'src/topbar.jsx')],outfile:path.join(root,'ui/topbar.js'),nodePaths:[path.resolve(root,'../preview-1080/node_modules')],bundle:true,minify:true,loader:{'.svg':'dataurl'},jsx:'automatic',target:['es2022'],define:{'process.env.NODE_ENV':'"production"'},logLevel:'info'});
+copyFileSync(path.join(root,'node_modules/howler/LICENSE.md'),path.join(root,'ui/howler-license.txt'));
+copyFileSync(path.resolve(root,'../preview-1080/node_modules/@tiptap/core/LICENSE.md'),path.join(root,'ui/tiptap-license.txt'));
+copyFileSync(path.join(root,'src/vendor/react-bits-dock/LICENSE.md'),path.join(root,'ui/react-bits-dock-license.txt'));

@@ -1,0 +1,133 @@
+<!-- Top Bar -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2 text-slate-700 dark:text-slate-200 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-paw"></i>
+          </div>
+          <span class="font-bold">hooper.ink</span>
+        </a>
+        <span class="text-slate-300 dark:text-slate-700">|</span>
+        <a href="/blog/" class="text-sm text-slate-500 dark:text-slate-400 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">博客</a>
+      </div>
+      <button id="themeToggle" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-moon text-slate-600 dark:text-slate-300"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex gap-8">
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar w-60 shrink-0">
+    <div class="sticky top-20 glass rounded-xl p-4">
+      <h3 class="text-sm font-bold mb-3 text-slate-700 dark:text-slate-200">
+        <i class="fas fa-list-ul mr-1.5 text-cyber-500"></i>目录
+      </h3>
+      <nav id="tocNav" class="space-y-1">
+        <!-- TOC injected by JS -->
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Article -->
+  <article class="flex-1 min-w-0">
+    <!-- Cover -->
+    {% if cover %}
+    <div class="mb-8 rounded-2xl overflow-hidden">
+      <img src="{{ cover }}" alt="{{ title }}" class="w-full h-64 object-cover">
+    </div>
+    {% endif %}
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
+      <span><i class="far fa-calendar mr-1"></i>{{ date }}</span>
+      <span>·</span>
+      <span><i class="fas fa-map-marker-alt mr-1"></i>{{ location }}</span>
+      <span>·</span>
+      <span><i class="far fa-clock mr-1"></i>{{ read_time }} 分钟</span>
+      <span>·</span>
+      <span id="busuanzi_container_page_pv" class="hidden md:inline">
+        <i class="far fa-eye mr-1"></i>阅读 <span id="busuanzi_value_page_pv" class="font-semibold text-cyber-500">-</span>
+      </span>
+      {% if tags %}
+      <span class="hidden md:inline">·</span>
+      <div class="hidden md:flex flex-wrap gap-1.5">
+        {% for tag in tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <h1 class="text-4xl font-bold mb-6 leading-tight">{{ title }}</h1>
+
+    <!-- Content -->
+    <div class="prose max-w-none text-slate-700 dark:text-slate-300">
+      {{ body | safe }}
+    </div>
+
+    <!-- Prev/Next -->
+    <nav class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
+      {% if prev %}
+      <a href="{{ prev.url }}" class="card-hover glass rounded-xl p-4 flex-1 group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-arrow-left mr-1"></i>上一篇</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">{{ prev.title }}</div>
+      </a>
+      {% else %}
+      <div class="flex-1"></div>
+      {% endif %}
+      <a href="/blog/" class="card-hover glass rounded-xl p-4 sm:w-48 text-center group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-th-list mr-1"></i>博客首页</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">所有文章</div>
+      </a>
+      {% if next %}
+      <a href="{{ next.url }}" class="card-hover glass rounded-xl p-4 flex-1 text-right group">
+        <div class="text-xs text-slate-400 mb-1">下一篇<i class="fas fa-arrow-right ml-1"></i></div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">{{ next.title }}</div>
+      </a>
+      {% else %}
+      <div class="flex-1"></div>
+      {% endif %}
+    </nav>
+
+    <!-- Giscus -->
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200">
+        <i class="far fa-comments mr-2 text-cyber-500"></i>评论
+      </h3>
+      <div class="giscus"></div>
+    </div>
+  </article>
+</div>
+
+<!-- TOC Script -->
+<script>
+(function() {
+  const article = document.querySelector('article .prose');
+  if (!article) return;
+  const headings = article.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  const nav = document.getElementById('tocNav');
+  headings.forEach((h, i) => {
+    h.id = h.id || ('h-' + i + '-' + h.textContent.trim().replace(/\s+/g, '-').toLowerCase().slice(0, 40));
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.className = 'toc-link ' + (h.tagName === 'H2' ? 'toc-link-h2' : 'toc-link-h3');
+    a.textContent = h.textContent.trim();
+    nav.appendChild(a);
+  });
+  // Scroll-spy
+  const tocLinks = nav.querySelectorAll('.toc-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = nav.querySelector('a[href="#' + e.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  headings.forEach(h => obs.observe(h));
+})();
+</script>

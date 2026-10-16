@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造 - Hooper 的博客</title>
+  <meta name="description" content="基于 TradingAgents-AShare 开源项目的一次拆解与改造记录：原项目选型、部署踩坑、A 股规则适配层、main.py 依赖图梳理，以及 fork 心态下如何把别人的项目变成自己的工具。">
+  <meta name="keywords" content="学习笔记, 二次开发, 多智能体, Hooper, hooper.ink, 博客">
+  <meta name="author" content="Hooper">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hooper.ink/blog/posts/trading-agents-ashare-learning.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造 - Hooper 的博客">
+  <meta property="og:description" content="基于 TradingAgents-AShare 开源项目的一次拆解与改造记录：原项目选型、部署踩坑、A 股规则适配层、main.py 依赖图梳理，以及 fork 心态下如何把别人的项目变成自己的工具。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hooper.ink/blog/posts/trading-agents-ashare-learning.html">
+  <meta property="og:site_name" content="Hooper 的博客">
+  <meta property="og:image" content="/blog/assets/images/cover-trading-agents-ashare-learning.webp">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造 - Hooper 的博客">
+  <meta name="twitter:description" content="基于 TradingAgents-AShare 开源项目的一次拆解与改造记录：原项目选型、部署踩坑、A 股规则适配层、main.py 依赖图梳理，以及 fork 心态下如何把别人的项目变成自己的工具。">
+  <meta name="twitter:image" content="/blog/assets/images/cover-trading-agents-ashare-learning.webp">
+
+  <meta property="article:published_time" content="2026-06-06">
+  <meta property="article:author" content="Hooper">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐅</text></svg>">
+
+  <!-- 依赖 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'], serif: ['Noto Serif SC', 'serif'] },
+          colors: {
+            cyber: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    .prose { line-height: 1.85; }
+    .prose h2 { font-size: 1.75rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(20,184,166,0.15); scroll-margin-top: 5rem; }
+    .prose h3 { font-size: 1.35rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.75rem; scroll-margin-top: 5rem; }
+    .prose p { margin-bottom: 1.1rem; }
+    .prose a { color: #14b8a6; text-decoration: underline; text-underline-offset: 3px; }
+    .prose a:hover { color: #0d9488; }
+    .prose blockquote { border-left: 4px solid #14b8a6; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: #475569; background: rgba(20,184,166,0.05); border-radius: 0 0.5rem 0.5rem 0; }
+    .dark .prose blockquote { color: #94a3b8; background: rgba(20,184,166,0.08); }
+    .prose code { background: rgba(20,184,166,0.12); color: #0d9488; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; font-family: 'SF Mono', 'Monaco', 'Consolas', monospace; }
+    .dark .prose code { background: rgba(45,212,191,0.18); color: #5eead4; }
+    .prose pre { background: #0f172a !important; border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(20,184,166,0.2); }
+    .prose pre code { background: transparent; color: #e2e8f0; padding: 0; font-size: 0.875rem; }
+    .prose ul, .prose ol { padding-left: 1.75rem; margin-bottom: 1.1rem; }
+    .prose li { margin-bottom: 0.4rem; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { border: 1px solid rgba(20,184,166,0.2); padding: 0.6rem 0.85rem; text-align: left; }
+    .prose th { background: rgba(20,184,166,0.1); font-weight: 600; }
+    .prose img { border-radius: 0.5rem; margin: 1.5rem auto; max-width: 100%; }
+    .prose hr { border: none; border-top: 1px dashed rgba(20,184,166,0.3); margin: 2rem 0; }
+    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,184,0.1); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(20,184,166,0.2); }
+    .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.04) 1px, transparent 1px); background-size: 32px 32px; }
+    .dark .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.06) 1px, transparent 1px); }
+    .tag { display: inline-block; padding: 0.125rem 0.625rem; background: rgba(20, 184, 166, 0.1); color: #0d9488; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem; }
+    .dark .tag { background: rgba(45, 212, 191, 0.15); color: #5eead4; }
+    .toc-sidebar { display: none; }
+    @media (min-width: 1024px) { .toc-sidebar { display: block; } }
+    .toc-link { display: block; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: #64748b; transition: all 0.2s; border-left: 2px solid transparent; }
+    .dark .toc-link { color: #94a3b8; }
+    .toc-link:hover { color: #0d9488; background: rgba(20,184,166,0.08); }
+    .dark .toc-link:hover { color: #2dd4bf; }
+    .toc-link.active { color: #0d9488; border-left-color: #14b8a6; background: rgba(20,184,166,0.08); }
+    .dark .toc-link.active { color: #2dd4bf; border-left-color: #2dd4bf; }
+    .toc-link-h3 { padding-left: 1rem; font-size: 0.8rem; }
+    .toc-link-h2 { font-weight: 500; }
+    @keyframes breathe { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200 bg-grid">
+<!-- Top Bar -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2 text-slate-700 dark:text-slate-200 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
+            <i class="fas fa-paw"></i>
+          </div>
+          <span class="font-bold">hooper.ink</span>
+        </a>
+        <span class="text-slate-300 dark:text-slate-700">|</span>
+        <a href="/blog/" class="text-sm text-slate-500 dark:text-slate-400 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">博客</a>
+      </div>
+      <button id="themeToggle" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-moon text-slate-600 dark:text-slate-300"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex gap-8">
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar w-60 shrink-0">
+    <div class="sticky top-20 glass rounded-xl p-4">
+      <h3 class="text-sm font-bold mb-3 text-slate-700 dark:text-slate-200">
+        <i class="fas fa-list-ul mr-1.5 text-cyber-500"></i>目录
+      </h3>
+      <nav id="tocNav" class="space-y-1">
+        <!-- TOC injected by JS -->
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Article -->
+  <article class="flex-1 min-w-0">
+    <!-- Cover -->
+    
+    <div class="mb-8 rounded-2xl overflow-hidden">
+      <img src="/blog/assets/images/cover-trading-agents-ashare-learning.webp" alt="TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造 - Hooper 的博客" class="w-full h-64 object-cover">
+    </div>
+    
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
+      <span><i class="far fa-calendar mr-1"></i>2026-06-06</span>
+      <span>·</span>
+      <span><i class="fas fa-map-marker-alt mr-1"></i>南京</span>
+      <span>·</span>
+      <span><i class="far fa-clock mr-1"></i>6 分钟</span>
+      <span>·</span>
+      <span id="busuanzi_container_page_pv" class="hidden md:inline">
+        <i class="far fa-eye mr-1"></i>阅读 <span id="busuanzi_value_page_pv" class="font-semibold text-cyber-500">-</span>
+      </span>
+      
+      <span class="hidden md:inline">·</span>
+      <div class="hidden md:flex flex-wrap gap-1.5">
+        <span class="tag">学习笔记</span><span class="tag">二次开发</span><span class="tag">多智能体</span>
+      </div>
+      
+    </div>
+
+    <h1 class="text-4xl font-bold mb-6 leading-tight">TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造 - Hooper 的博客</h1>
+
+    <!-- Content -->
+    <div class="prose max-w-none text-slate-700 dark:text-slate-300">
+      <h2 id="_1">为什么选它</h2>
+<p>最初的需求很朴素：给一个 10 万人民币的 A 股模拟盘找一个"决策伙伴"。不是要 AI 替自己下注,而是想要一份每日的研报——多空双方对一只股票的看法、风险点、目标价。</p>
+<p>看了一圈现成的工具,要么是付费数据终端(同花顺 iFinD、Wind),要么是简单的"AI 选股"Prompt 套壳。直到在 GitHub 上看到 <a href="https://github.com/KylinMountain/TradingAgents-AShare">TradingAgents-AShare</a>——一个 fork 自 <a href="https://github.com/TauricResearch/TradingAgents">上游 TradingAgents</a>(TauricResearch 出品的美股多智能体框架)、专门给 A 股做了适配的开源项目。</p>
+<p>它的设计正好踩中需求:14 个 Agent 协作,有多空辩论、有风控、有结构化输出。开源、可自部署、不吃付费数据(接 akshare / tushare)。clone 下来就开始读。</p>
+<blockquote>
+<p>选型心路:开源 &gt; 付费,二次开发可改 &gt; 套壳 Prompt 不可控,有结构化输出 &gt; 黑盒答案。三个标准筛下来,候选只剩这一家。</p>
+</blockquote>
+<h2 id="4548-mainpy">第一眼:4548 行的 main.py</h2>
+<p>拉下来一看,第一印象是"工程密度高":</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>wc<span class="w"> </span>-l<span class="w"> </span>api/main.py
+<span class="m">4548</span><span class="w"> </span>api/main.py
+$<span class="w"> </span>find<span class="w"> </span>api<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+<span class="m">38</span>
+$<span class="w"> </span>find<span class="w"> </span>tradingagents<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+<span class="m">91</span>
+</code></pre></div>
+
+<p>一个 FastAPI 入口文件吞下了 4548 行,后端 38 个文件、核心引擎 91 个。FastAPI 这种文件结构有利有弊——好处是路由一目了然,坏处是所有 Pydantic schema、依赖注入、业务逻辑都堆在一起,认知负担很重。</p>
+<p>但这不是要吐槽它。开源项目尤其是中文社区的项目,这种"主入口单文件"的写法挺常见,作者可能为了降低 fork 门槛才这么组织。理解意图,再决定怎么用。</p>
+<h2 id="docker">部署:从 Docker 到裸跑</h2>
+<p>项目自带 Dockerfile,本来想直接 <code>docker compose up</code>。但目标机器只有 4 核 4GB,已经跑着导航站(静态 Node)和模拟盘,再叠一层 Docker 会有 200~400MB 的额外开销。最终选择了裸跑:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 系统服务</span>
+python3.11<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+
+<span class="c1"># 前端单独构建</span>
+<span class="nb">cd</span><span class="w"> </span>frontend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>run<span class="w"> </span>build
+
+<span class="c1"># 启动后端(用 systemd user service 管理)</span>
+~/.config/systemd/user/trading-agents.service
+</code></pre></div>
+
+<p>前端构建产物直接被 nginx 当静态文件 serve(<code>location /trading/</code>),后端 uvicorn 监听 <code>127.0.0.1:8000</code> 由 nginx 反代。这种"前后端分离 + 单端口入口"的部署对低内存机器很友好,不用多起一个 Node 进程。</p>
+<p>部署本身没坑,坑在它运行起来之后。</p>
+<h2 id="a-5">A 股适配:原版没有的 5 件事</h2>
+<p>上游 TradingAgents 写的是美股,A 股市场的特殊性需要单独处理。下面这五块是项目里着重做适配的地方,也是后续 A 股模拟盘能跑起来的前提。</p>
+<h3 id="1">1. 涨跌停限制</h3>
+<p>A 股主板 10%、创业板/科创板 20%、ST 股 5%。模型给的目标价不能突破当日涨跌停,否则会触发交易系统的"废单"。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 适配层:涨跌停价计算</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_limit_prices</span><span class="p">(</span><span class="n">prev_close</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">code</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;300&quot;</span><span class="p">,</span> <span class="s2">&quot;301&quot;</span><span class="p">,</span> <span class="s2">&quot;688&quot;</span><span class="p">)):</span>   <span class="c1"># 创业/科创</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="mf">0.20</span>
+    <span class="k">elif</span> <span class="s2">&quot;ST&quot;</span> <span class="ow">in</span> <span class="n">code</span> <span class="ow">or</span> <span class="s2">&quot;*ST&quot;</span> <span class="ow">in</span> <span class="n">code</span><span class="p">:</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="mf">0.10</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">prev_close</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">prev_close</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">upper</span><span class="p">,</span> <span class="n">lower</span>
+</code></pre></div>
+
+<h3 id="2-t1">2. T+1 结算</h3>
+<p>美股 T+0 当日可卖,A 股 T+1 次日才能卖。模型给"今天买入明天卖出"的建议是无效的,需要把"建议持仓周期"至少标到 T+1。</p>
+<h3 id="3">3. 复权处理</h3>
+<p>A 股分红送股频繁,不复权的历史 K 线在长期看图时会出现巨大缺口。框架默认拿到的是不复权数据,在前端展示前要按需切换前复权。</p>
+<h3 id="4">4. 交易日历</h3>
+<p>周末、节假日不交易。A 股还有"中秋国庆连放 7 天"这种美股没有的连假,调度器要跳过这些日子。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 调度器:用 chinese_holiday_apis 库判定</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">chinese_holiday_apis</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_holiday</span>
+<span class="k">if</span> <span class="n">is_holiday</span><span class="p">(</span><span class="n">today</span><span class="p">)</span> <span class="ow">or</span> <span class="n">today</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+    <span class="n">skip_today_analysis</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="5">5. 交易时间窗口</h3>
+<p>9:30~11:30 + 13:00~15:00 两个连续时段,中午休市。盘中决策和收盘结算走两套逻辑,不能混。</p>
+<h2 id="mainpy">代码审计:把 main.py 拆开看</h2>
+<p>跑起来之后,下一步是想搞清"它内部到底怎么跑的"。一个 4548 行的单文件,跳来跳去看 Pydantic schema 定义会失焦——schema 散落在路由函数上下文中,没法一眼看出整张依赖图。</p>
+<p>为了学习,做了一次纯重构:把所有 Pydantic 模型抽离到 <code>api/schemas/</code>,按业务领域分包(报告、持仓、辩论、定时任务等)。结果:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 重构前</span>
+$<span class="w"> </span>wc<span class="w"> </span>-l<span class="w"> </span>api/main.py
+<span class="m">4548</span><span class="w"> </span>api/main.py
+
+<span class="c1"># 重构后</span>
+$<span class="w"> </span>wc<span class="w"> </span>-l<span class="w"> </span>api/main.py
+<span class="m">3919</span><span class="w"> </span>api/main.py
+$<span class="w"> </span>ls<span class="w"> </span>api/schemas/<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+<span class="m">17</span><span class="w">   </span><span class="c1"># 17 个 schema 文件,共 51 个 Pydantic 模型</span>
+</code></pre></div>
+
+<p>这次重构不是为了优化、不是为了提 PR、不是为了合上游——纯粹是"为了让依赖图清晰可见"。做完之后,模型之间的引用关系一目了然,后续要二次开发哪里、哪里耦合、哪里能替换,都有了地图。</p>
+<blockquote>
+<p>这次重构踩到一个隐蔽的 bug:登录接口在密码错误时返回 HTTP 200 而不是 401。这种"防御性写法"在单文件里很难定位,抽离 schema 后从响应模型反查一下就找到了。</p>
+</blockquote>
+<p>fork 别人的项目,最值的"投资"就是这种"为了理解而重构"的练习。它不是浪费——它是你把项目从"别人的"变成"自己的"的关键一步。</p>
+<h2 id="_2">改造:在原版之上加的东西</h2>
+<p>围绕这套框架,目前在两个方向上加了东西:</p>
+<ol>
+<li><strong>模拟盘对接</strong>:<code>hooper.ink/sim/</code> 跑一个 10 万虚拟资金的模拟盘,所有"买入/卖出"动作通过 API 推给 TradingAgents,让框架出研报作为决策依据。完全实盘规则(T+1、涨跌停、手续费)。</li>
+<li><strong>cron 化每日推送</strong>:每天 15:30 收盘后自动触发一次"持仓标的复盘",有交易动作或异常时推送通知,空操作静默——这条规则来自用户对"不打扰"的偏好,而不是技术约束。</li>
+</ol>
+<p>这两块逻辑都不在原项目里,是后来包了一层壳:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 模拟盘 → 研报的桥接</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_trade_decision</span><span class="p">(</span><span class="n">decision</span><span class="p">:</span> <span class="n">TradeAction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;模拟盘下单后,异步请求一份对应的研报&quot;&quot;&quot;</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">TRADING_API</span><span class="si">}</span><span class="s2">/analyze&quot;</span><span class="p">,</span>
+        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="n">decision</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="s2">&quot;horizon&quot;</span><span class="p">:</span> <span class="n">decision</span><span class="o">.</span><span class="n">horizon</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">save_report_to_db</span><span class="p">(</span><span class="n">decision</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">notify_user</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="fork">反思:fork 心态的几个原则</h2>
+<p>走过一遍之后,有几条心得对将来 fork 别的项目仍然适用:</p>
+<ol>
+<li><strong>选型看三个维度</strong>:开源可控、源码可读、社区活跃。TradingAgents-AShare 三点都满足——issues 响应及时,PR 频率稳定,README 写得到位。</li>
+<li><strong>不要被代码量吓到</strong>:4548 行的 main.py 听上去吓人,抽离 schema 之后实际业务逻辑可能只有 2000 行。结构比行数重要。</li>
+<li><strong>为"理解"而重构是值钱的</strong>:不是为了 PR、不是为了合上游,是为了"读懂"。读懂之后,改造是顺水推舟。</li>
+<li><strong>版权和致谢是基本功</strong>:文章、博客、对外分享里,公开标注原项目地址和作者。这不是谦虚,是工程素养。</li>
+<li><strong>适配层和原版要分清</strong>:在原版之外加的逻辑,单独目录、单独 README、单独的迁移策略。哪部分是"上游变动我也得跟着变"的,哪部分是"我自己能完全掌控"的,边界要清楚。</li>
+</ol>
+<h2 id="_3">下一步</h2>
+<p>计划里还有几件没做的事:</p>
+<ul>
+<li>把多智能体辩论的"中间过程"对用户透明化(不只是出最终报告,让用户能看到多空双方怎么吵的)</li>
+<li>引入回测模块,让框架的研报能在历史数据上验证准确率</li>
+<li>把研报里的"目标价"和"止损价"做成动态提醒,价格触发时通知</li>
+</ul>
+<p>这些都是"在原版之上的延伸",而不是"重写原版"。fork 心态的核心:尊重原作者的边界,自己的需求在适配层里满足。</p>
+<hr />
+<h2 id="_4">致谢与说明</h2>
+<p>本文涉及的 TradingAgents 框架有两个版本:</p>
+<ul>
+<li>上游: <a href="https://github.com/TauricResearch/TradingAgents">TauricResearch/TradingAgents</a>(美股版,基础研究框架)</li>
+<li>Fork: <a href="https://github.com/KylinMountain/TradingAgents-AShare">KylinMountain/TradingAgents-AShare</a>(A 股适配版,本文主要学习的对象)</li>
+</ul>
+<p>本文是基于这两个开源项目的学习与二次开发记录。所有"加的代码片段"(涨跌停计算、模拟盘桥接、cron 调度)都是适配层的工作,不涉及原项目源码的复制。</p>
+<blockquote>
+<p>部署在 121.4.96.84(4 核 4GB),服务地址: <a href="https://hooper.ink/trading/">hooper.ink/trading/</a></p>
+</blockquote>
+    </div>
+
+    <!-- Prev/Next -->
+    <nav class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
+      
+      <a href="/blog/posts/paradigms-of-ai-video-creation.html" class="card-hover glass rounded-xl p-4 flex-1 group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-arrow-left mr-1"></i>上一篇</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究</div>
+      </a>
+      
+      <a href="/blog/" class="card-hover glass rounded-xl p-4 sm:w-48 text-center group">
+        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-th-list mr-1"></i>博客首页</div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">所有文章</div>
+      </a>
+      
+      <a href="/blog/posts/ai-agent-collab-protocol.html" class="card-hover glass rounded-xl p-4 flex-1 text-right group">
+        <div class="text-xs text-slate-400 mb-1">下一篇<i class="fas fa-arrow-right ml-1"></i></div>
+        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">当两个 AI Agent 学会协作，我成了「协议制定者」</div>
+      </a>
+      
+    </nav>
+
+    <!-- Giscus -->
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200">
+        <i class="far fa-comments mr-2 text-cyber-500"></i>评论
+      </h3>
+      <div class="giscus"></div>
+    </div>
+  </article>
+</div>
+
+<!-- TOC Script -->
+<script>
+(function() {
+  const article = document.querySelector('article .prose');
+  if (!article) return;
+  const headings = article.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  const nav = document.getElementById('tocNav');
+  headings.forEach((h, i) => {
+    h.id = h.id || ('h-' + i + '-' + h.textContent.trim().replace(/\s+/g, '-').toLowerCase().slice(0, 40));
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.className = 'toc-link ' + (h.tagName === 'H2' ? 'toc-link-h2' : 'toc-link-h3');
+    a.textContent = h.textContent.trim();
+    nav.appendChild(a);
+  });
+  // Scroll-spy
+  const tocLinks = nav.querySelectorAll('.toc-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = nav.querySelector('a[href="#' + e.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  headings.forEach(h => obs.observe(h));
+})();
+</script>
+
+<!-- Footer -->
+<footer class="mt-20 pb-8 text-center text-xs text-slate-400">
+  <p>Copyright &copy; 2026 Hooper 的数字领地 · 赛博老虎驻守中</p>
+  <p class="mt-1">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="hover:text-cyber-400 transition-colors">
+      苏ICP备2022029383号-1
+    </a>
+  </p>
+</footer>
+
+<script>
+  // Theme
+  const themeToggle = document.getElementById('themeToggle');
+  function setTheme(dark) {
+    if (dark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); }
+    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); }
+  }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+  }
+  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setTheme(true);
+  }
+
+  // highlight.js
+  if (typeof hljs !== 'undefined') { hljs.highlightAll(); }
+</script>
+
+
+<!-- Giscus Comments -->
+<script>
+  (function() {
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'hooper3d/hooper.ink');
+    script.setAttribute('data-repo-id', 'R_kgDOSGEnYQ');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOSGEnYc4C7Iyy');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    document.body.appendChild(script);
+  })();
+</script>
+
+
+
+<!-- busuanzi 阅读数 -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</body>
+</html>
