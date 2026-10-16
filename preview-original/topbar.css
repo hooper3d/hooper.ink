@@ -41,9 +41,15 @@
 .calculator-result>i { color:var(--muted); font-size:14px; }
 .calculator-result:disabled>i { visibility:hidden; }
 .calculator-status { min-height:23px; padding:3px 10px; font-size:11px; color:var(--muted); }
-.calculator-examples { display:flex; flex-wrap:wrap; gap:6px; padding-top:4px; }
-.calculator-examples button { padding:6px 8px; border-radius:6px; background:var(--icon-bg); color:var(--muted); font-size:11px; }
-.calculator-examples button:hover { color:var(--text); background:var(--hover); }
+.calculator-keypad { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.calculator-keypad button { min-height:44px; border-radius:9px; background:var(--icon-bg); color:var(--text); font-size:18px; font-variant-numeric:tabular-nums; touch-action:manipulation; transition:background 120ms,transform 120ms; }
+.calculator-keypad button:hover { background:var(--hover); }
+.calculator-keypad button:active { transform:scale(.95); }
+.calculator-keypad button:focus-visible { outline:2px solid var(--focus); outline-offset:1px; }
+.calculator-keypad .calculator-zero { grid-column:span 2; }
+.calculator-keypad .calculator-operator { background:var(--selected); }
+.calculator-keypad .calculator-equals { background:var(--text); color:var(--surface); }
+.calculator-keypad .calculator-equals:hover { background:var(--muted); }
 .weather-overview { display:flex; justify-content:space-between; align-items:center; padding:12px 4px 18px; border-bottom:1px solid var(--line); }
 .weather-overview>.meteo-icon { width:92px; height:92px; }
 .weather-degrees { font-size:42px; font-weight:500; line-height:1.2; letter-spacing:-2px; font-variant-numeric:tabular-nums; }
