@@ -3,6 +3,10 @@
 #desktopDock+footer { margin-top:0; }
 .hooper-dock { bottom:16px; justify-content:center; backdrop-filter:none; -webkit-backdrop-filter:none; }
 .hooper-dock::before { display:block; }
+.hooper-dock .dock-tile { transform-origin:50% 100%; transition:transform 160ms cubic-bezier(.2,.8,.2,1); }
+.hooper-dock .dock-item:focus-visible .dock-tile,.hooper-dock .dock-item[aria-expanded="true"] .dock-tile { transform:translateY(-3px) scale(1.08) !important; }
+@media (hover:hover) { .hooper-dock .dock-item:hover .dock-tile { transform:translateY(-3px) scale(1.08) !important; } }
+@media (prefers-reduced-motion:reduce) { .hooper-dock .dock-tile { transition:none; } }
 .hooper-dock .dock-face { font-size:20px; background:#EFEFEF; }
 .dark .hooper-dock .dock-face { background:#2C2C2C; }
 .hooper-dock .dock-item:focus-visible .dock-face { outline-color:var(--focus); }
