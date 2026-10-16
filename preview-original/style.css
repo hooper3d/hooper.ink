@@ -91,9 +91,8 @@ dialog h2 { font-size:18px; } dialog p { margin:16px 0 24px; font-size:14px; }
 @media (max-width:520px) {
   h1 { font-size:13px; } .brand { gap:8px; } .header-actions { gap:2px; }
   .poetry { padding-left:16px; padding-right:40px; } #poetrySentence { font-size:17px; }
-  #categoryFilters { margin:12px 0 16px; gap:2px; }
-  #categoryFilters button { padding:5px 10px; }
-  #linksGrid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px 8px; }
+  #categoryFilters { display:none; }
+  #linksGrid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px 8px; margin-top:24px; }
   .site-card { min-height:0; border:0; border-radius:14px; background:transparent; }
   .site-card:hover,.site-card:focus-within,.dark .site-card:hover,.dark .site-card:focus-within { background:transparent; border-color:transparent; transform:none; box-shadow:none; }
   .site-link { min-height:76px; flex-direction:column; gap:6px; padding:0; text-align:center; }
