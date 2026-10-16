@@ -37,11 +37,27 @@ function webSearch() {
   return searchMode.value === 'google' && searchQuery ? engines['!g'] + encodeURIComponent(searchQuery) : null;
 }
 const tiles = ['#248D80','#C57843','#6576C4','#248D80','#C04A70','#5D6AC3','#C56740','#3D8E72','#3889AB','#586678','#498BBC','#C65C69','#B96298','#8A67BC','#8F65BA','#B78543','#3D9395','#4C81C9','#BA5E90','#617A99','#258E80','#8D63BE','#527DC2','#6D6BC4'];
+const siteIcons = {
+  'chat.openai.com':'chat.openai.com.webp',
+  'console.cloud.tencent.com':'console.cloud.tencent.com.ico',
+  'coolors.co':'coolors.co.png',
+  'deepseek.com':'deepseek.com.ico',
+  'gemini.google.com':'gemini.google.com.png',
+  'github.com':'github.com.svg',
+  'hermesagent.org.cn':'hermesagent.org.cn.png',
+  'jimeng.jianying.com':'jimeng.jianying.com.ico',
+  'tinypng.com':'tinypng.com.png',
+  'tushare.pro':'tushare.pro.png',
+  'www.figma.com':'www.figma.com.png',
+  'www.minimaxi.com':'www.minimaxi.com.ico',
+  'www.volcengine.com':'www.volcengine.com.png'
+};
 function renderCard(item) {
   const index = item.id;
   const isFavorite = favorites.includes(item.url);
   const href = item.url.startsWith('/') ? 'https://hooper.ink' + item.url : item.url;
-  const favicon = item.iconUrl || (!item.mark && item.cat !== 'my' && item.url !== '#' ? `https://favicon.im/${new URL(href).hostname}?larger=true` : '');
+  const host = item.url !== '#' ? new URL(href).hostname : '';
+  const favicon = item.iconUrl || (!item.mark && item.cat !== 'my' && host ? (siteIcons[host] ? `/assets/site-icons/${siteIcons[host]}` : `https://favicon.im/${host}?larger=true`) : '');
   const fallback = `<span class="fallback" style="--tile:${escapeHtml(item.tile || tiles[Number(index)] || '#617A99')}" ${favicon ? 'hidden' : ''}>${item.mark ? escapeHtml([...item.mark].slice(0,2).join('')) : `<i class="${item.icon === 'fa-github' ? 'fab' : 'fas'} ${escapeHtml(item.icon || 'fa-link')}" aria-hidden="true"></i>`}</span>`;
   return `<article class="site-card" data-site="${escapeHtml(index)}">
     <a class="site-link" href="${escapeHtml(href)}" ${href !== '#' ? 'target="_blank" rel="noopener noreferrer"' : 'aria-haspopup="dialog"'}>

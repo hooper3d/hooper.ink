@@ -162,7 +162,7 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
       if (!allowed.includes(name) && !/^\/(assets|ui)\/[a-zA-Z0-9_./-]+$/.test(name)) throw error(404, 'Not found');
       const file = path.resolve(root, '.' + name);
       if (!file.startsWith(root + path.sep) || name.split('/').includes('..')) throw error(404, 'Not found');
-      const types = {'.html':'text/html; charset=utf-8', '.js':'application/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.txt':'text/plain; charset=utf-8'};
+      const types = {'.html':'text/html; charset=utf-8', '.js':'application/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.webp':'image/webp', '.ico':'image/x-icon', '.txt':'text/plain; charset=utf-8'};
       if (!types[path.extname(file)]) throw error(404, 'Not found');
       fs.readFile(file, (err, data) => { if (err) { reply(res, 404, {error:'Not found'}); return; } if (production && name === '/index.html') data = Buffer.from(data.toString('utf8').replace(/\s*<meta name="robots" content="noindex, nofollow">/, '')); res.setHeader('Content-Type', types[path.extname(file)]); res.end(req.method === 'HEAD' ? '' : data); });
     } catch (e) { reply(res, e.status || 500, {error:e.status ? e.message : '保存服务暂不可用'}); }
