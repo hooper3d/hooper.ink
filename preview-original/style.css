@@ -57,11 +57,11 @@ button:disabled { cursor:wait; opacity:.45; }
 .site-card:active { transform:translateY(-1px); transition-duration:80ms; }
 .site-link { display:flex; align-items:center; gap:14px; height:100%; min-height:78px; padding:14px 38px 14px 14px; border-radius:12px; }
 .site-link:focus-visible { outline-offset:0; }
-.site-icon { width:44px; height:44px; flex-shrink:0; border-radius:10px; background:var(--icon-bg); display:grid; place-items:center; transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
+.site-icon { width:36px; height:36px; flex-shrink:0; display:grid; place-items:center; transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
 .site-card:hover .site-icon,.site-card:focus-within .site-icon { transform:scale(1.055); }
-.site-icon img { width:32px; height:32px; object-fit:contain; border-radius:6px; }
-.site-icon .fallback { width:44px; height:44px; border-radius:10px; display:grid; place-items:center; background:var(--tile,#637A99); color:#F3F6FA; font-size:19px; }
-.site-icon.github-icon img { background:#EDF2F8; padding:2px; }
+.site-icon img { width:36px; height:36px; object-fit:contain; }
+.site-icon .fallback { width:36px; height:36px; border-radius:9px; display:grid; place-items:center; background:var(--tile,#637A99); color:#F3F6FA; font-size:17px; }
+.site-icon.github-icon img { background:#EDF2F8; padding:2px; border-radius:6px; }
 .site-copy { min-width:0; flex:1; }
 .site-title { display:flex; align-items:center; gap:7px; }
 .site-copy h2 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:16px; line-height:24px; font-weight:600; letter-spacing:-.35px; }
@@ -105,10 +105,6 @@ dialog h2 { font-size:18px; } dialog p { margin:16px 0 24px; font-size:14px; }
   .site-card { min-height:0; border:0; border-radius:14px; background:transparent; }
   .site-card:hover,.site-card:focus-within,.dark .site-card:hover,.dark .site-card:focus-within { background:transparent; border-color:transparent; transform:none; box-shadow:none; }
   .site-link { min-height:76px; flex-direction:column; gap:6px; padding:0; text-align:center; }
-  .site-icon,.site-icon .fallback { width:52px; height:52px; border-radius:14px; }
-  .site-icon { box-shadow:0 3px 8px #1721310A; }
-  .site-icon img { width:38px; height:38px; border-radius:9px; }
-  .site-icon .fallback { font-size:23px; }
   .site-link:active .site-icon { transform:scale(.94); }
   .site-copy { width:100%; flex:none; }
   .site-title { justify-content:center; gap:3px; }
