@@ -27,6 +27,12 @@
 
 哈希升级后，回退目标必须支持 `version:2`；更早的默认参数实现不能直接验证新哈希。不要通过恢复旧密码文件来回退代码。验证应使用独立数据，不能对线上连续试错或覆盖站主密码。
 
+## PWA
+
+首页通过 `/manifest.webmanifest` 声明独立窗口和本站品牌图标，兼容 Android 安装与 iOS「添加到主屏幕」。`/pwa.js` 注册根路径 `/sw.js`；发布时需同步安装 routes 配置，让 Nginx 转发这三个文件与 `/offline.html`，检查 manifest MIME 和 Service-Worker-Allowed 响应头。
+
+Service Worker 只为首页导航提供联网优先、断网时的提示页。Cache Storage 仅保存公开的 `/offline.html`，不缓存首页脚本、登录、API、随手记、图片附件或音乐；博客等其他路径不拦截。联网访问始终获取当前版本，不依赖清除旧应用缓存来更新。真实手机的安装入口由浏览器提供，微信内置浏览器不作为安装验收环境。
+
 ## 回退
 
 恢复本次备份的 `/etc/nginx/sites-available/hooper.ink`，`nginx -t` 成功后 reload，即恢复原静态站。新服务可再停止；shared 私人数据保留。后续版本还可将 current 切回旧 release 后重启 hooper-navi；数据有独立存储，不随代码切换删除。
