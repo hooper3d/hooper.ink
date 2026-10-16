@@ -9,6 +9,7 @@ import {todayKey,lunarLabel} from '../../preview-1080/src/holidays';
 import useWeather,{condition,degrees} from '../../preview-1080/src/canvas/weather';
 import {weatherIcons} from '../../preview-1080/src/canvas/weather-icons';
 import NavigationManager from './NavigationManager';
+import About from './About';
 import {createPortal} from 'react-dom';
 import MusicPlayer from './MusicPlayer';
 import PrivateNotes from './PrivateNotes';
@@ -57,6 +58,7 @@ function Topbar(){
     {id:'calculator',label:'计算器',icon:<i className="fas fa-calculator" aria-hidden="true"/>,active:open==='calculator',renderItem:button=><Calculator triggerElement={button} open={open==='calculator'} onOpenChange={value=>setOpen(value?'calculator':null)}/>}
   ];
   return <ConfigProvider locale={zhCN} theme={{algorithm:dark?theme.darkAlgorithm:theme.defaultAlgorithm,token:{motion:!matchMedia('(prefers-reduced-motion: reduce)').matches,fontFamily:'Inter,"Noto Sans SC",sans-serif',colorPrimary:token('--accent'),colorText:token('--text'),colorTextLightSolid:dark?token('--bg'):token('--surface'),colorTextSecondary:token('--muted'),colorTextTertiary:token('--muted'),colorBgBase:token('--bg'),colorBgContainer:token('--surface'),colorBgElevated:token('--surface'),colorBorder:token('--line'),colorBorderSecondary:token('--line'),colorPrimaryBg:token('--selected'),borderRadius:10,boxShadowSecondary:'0 12px 40px #17213126'},components:{Calendar:{fullBg:token('--surface'),itemActiveBg:token('--selected')}}}}>
+    {createPortal(<About/>,document.getElementById('aboutTools'))}
     <div className="topbar-tools">
       <Popover open={open==='weather'} onOpenChange={value=>setOpen(value?'weather':null)} afterOpenChange={value=>{if(value)weatherPanelRef.current?.querySelector('button')?.focus()}} trigger="click" placement="bottom" arrow={false} content={weatherPanel}>
         <button ref={weatherTrigger} className="topbar-trigger weather-trigger" aria-haspopup="dialog" aria-expanded={open==='weather'} aria-label={`南京${current?` ${status.label} ${degrees(current.temperature)}`:weatherLoading?'天气加载中':'天气暂不可用'}，查看七日预报`}><WeatherIcon code={current?.code} isDay={current?.isDay}/><span className="weather-city">南京</span><strong>{current?degrees(current.temperature):'—'}</strong></button>

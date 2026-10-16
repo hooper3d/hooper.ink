@@ -13,9 +13,11 @@ async function request(url,options={}){
 export default function NavigationManager({session,onSessionChange:setSession,privateDirty=false}){
   const [login,setLogin]=useState(false),[open,setOpen]=useState(false),[tab,setTab]=useState('links');
   const [accountOpen,setAccountOpen]=useState(false);
+  const [iconUploading,setIconUploading]=useState(false);
   const [base,setBase]=useState(null),[draft,setDraft]=useState(null),[history,setHistory]=useState([]),[filter,setFilter]=useState('all');
   const [editor,setEditor]=useState(null),[error,setError]=useState(''),[formError,setFormError]=useState(''),[busy,setBusy]=useState(false);
   const [credentials]=Form.useForm(),[form]=Form.useForm();
+  const iconPreview=Form.useWatch('iconUrl',form);
   const [modal,modalContext]=Modal.useModal();
   const drag=useRef(null);
   const dirty=!!draft&&JSON.stringify(draft)!==JSON.stringify(base);
@@ -74,6 +76,12 @@ export default function NavigationManager({session,onSessionChange:setSession,pr
   }
   function exportData(){const url=URL.createObjectURL(new Blob([JSON.stringify(draft,null,2)],{type:'application/json'})),anchor=document.createElement('a');anchor.href=url;anchor.download=`hooper-navigation-${todayKey()}.json`;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
   async function importData(file){try{if(file.size>256*1024)throw Error('备份文件过大');const valid=validateNavigation(JSON.parse(await file.text()));change(next=>Object.assign(next,valid))}catch(e){setError(e instanceof SyntaxError?'JSON 格式无效':e.message)}return Upload.LIST_IGNORE}
+  async function uploadIcon(file){
+    if(file.size>2*1024*1024){setFormError('图标最大 2 MB');return Upload.LIST_IGNORE}
+    setIconUploading(true);setFormError('');
+    try{const image=await request('/api/site-icons',{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream','X-CSRF-Token':session.csrf},body:file});form.setFieldValue('iconUrl',image.src)}catch(e){setFormError(e.message)}finally{setIconUploading(false)}
+    return Upload.LIST_IGNORE;
+  }
   function actions(kind,item,index,length){return <Space size={0}><Button type="text" size="small" aria-label={`上移 ${item.title||item.name}`} icon={icon('arrow-up')} disabled={busy||index===0} onClick={()=>move(kind,item.id,-1)}/><Button type="text" size="small" aria-label={`下移 ${item.title||item.name}`} icon={icon('arrow-down')} disabled={busy||index===length-1} onClick={()=>move(kind,item.id,1)}/><Button type="text" size="small" aria-label={`编辑 ${item.title||item.name}`} icon={icon('pen')} disabled={busy} onClick={()=>edit(kind,item)}/><Button type="text" size="small" danger aria-label={`删除 ${item.title||item.name}`} icon={icon('trash-can')} disabled={busy} onClick={()=>remove(kind,item)}/></Space>}
   const activeFilter=draft?.categories.some(category=>category.id===filter)?filter:'all';
   const visible=draft?.links.filter(item=>activeFilter==='all'||item.cat===activeFilter)||[];
@@ -91,13 +99,13 @@ export default function NavigationManager({session,onSessionChange:setSession,pr
     <Drawer mask={{closable:!editor&&!login}} title={<span>导航管理{dirty&&<span className="manager-dirty" title="未保存" aria-label="未保存"/>}</span>} open={open} onClose={()=>setOpen(false)} size={560} className="navigation-manager" extra={!session?.localPreview&&<Tooltip title="退出登录"><Button type="text" aria-label="退出登录" disabled={busy} icon={icon('right-from-bracket')} onClick={logout}/></Tooltip>} footer={draft&&<div className="manager-footer"><Space size={2}><Tooltip title="撤销"><Button type="text" aria-label="撤销修改" disabled={!history.length||busy} icon={icon('rotate-left')} onClick={()=>{setDraft(history.at(-1));setHistory(history.slice(0,-1));setError('')}}/></Tooltip><Tooltip title="重新载入"><Button type="text" aria-label="重新载入导航" disabled={busy} icon={icon('rotate-right')} onClick={()=>{if(!dirty)load().catch(e=>setError(e.message));else modal.confirm({title:'放弃未保存的修改？',okText:'重新载入',cancelText:'取消',onOk:load})}}/></Tooltip><Tooltip title="导出备份"><Button type="text" aria-label="导出导航备份" disabled={busy} icon={icon('download')} onClick={exportData}/></Tooltip><Upload accept="application/json,.json" showUploadList={false} beforeUpload={importData} disabled={busy}><Tooltip title="导入备份"><Button type="text" aria-label="导入导航备份" disabled={busy} icon={icon('upload')}/></Tooltip></Upload></Space><Button type="primary" loading={busy} disabled={!dirty} onClick={publish}>保存</Button></div>} styles={{body:{padding:'0 20px 20px'}}}>
       <Tabs activeKey={tab} onChange={setTab} items={[{key:'links',label:'网站'},{key:'categories',label:'分类'}]}/>{list}
     </Drawer>
-    <Modal zIndex={1100} mask={{closable:false}} open={!!editor} title={editor?.kind==='category'?'分类':editor?.item?'编辑网站':'新增网站'} onCancel={()=>setEditor(null)} onOk={()=>form.submit()} okText="完成" cancelText="取消" width={540} forceRender>
+    <Modal zIndex={1100} mask={{closable:false}} open={!!editor} title={editor?.kind==='category'?'分类':editor?.item?'编辑网站':'新增网站'} onCancel={()=>setEditor(null)} onOk={()=>form.submit()} okText="完成" cancelText="取消" width={540} forceRender closable={!iconUploading} keyboard={!iconUploading} okButtonProps={{disabled:iconUploading}} cancelButtonProps={{disabled:iconUploading}}>
       <Form form={form} layout="vertical" onFinish={saveEditor} autoComplete="off">
         {editor?.kind==='category'?<Form.Item label="名称" name="name" rules={[{required:true,whitespace:true,message:'请输入名称'}]}><Input maxLength={20}/></Form.Item>:<>
           <div className="manager-fields"><Form.Item label="名称" name="title" rules={[{required:true,whitespace:true,message:'请输入名称'}]}><Input maxLength={100}/></Form.Item><Form.Item label="分类" name="cat" rules={[{required:true,message:'请选择分类'}]}><Select options={draft?.categories.map(item=>({value:item.id,label:item.name}))||[]}/></Form.Item></div>
           <Form.Item label="网址" name="url" rules={[{required:true,message:'请输入网址'},{validator:(_,value)=>{try{if(value)validUrl(value.trim());return Promise.resolve()}catch(e){return Promise.reject(e)}}}]}><Input placeholder="https://" maxLength={2000}/></Form.Item>
           <Form.Item label="说明" name="desc"><Input maxLength={200}/></Form.Item>
-          <div className="manager-fields"><Form.Item label="图标网址" name="iconUrl"><Input placeholder="自动获取" maxLength={2000}/></Form.Item><Form.Item label="图标文字" name="mark"><Input maxLength={8}/></Form.Item></div>
+          <div className="manager-fields"><Form.Item label="图标网址" htmlFor="iconUrl"><div className="manager-icon-input"><Form.Item name="iconUrl" noStyle><Input placeholder="自动获取" maxLength={2000} disabled={iconUploading} prefix={iconPreview?<img className="manager-icon-preview" src={iconPreview} alt="图标预览" width="20" height="20" referrerPolicy="no-referrer"/>:null}/></Form.Item><Upload accept=".png,.jpg,.jpeg,.gif,.webp,.ico" showUploadList={false} beforeUpload={uploadIcon} disabled={iconUploading}><Tooltip title="上传图标"><Button aria-label="上传图标" icon={icon('arrow-up-from-bracket')} loading={iconUploading}/></Tooltip></Upload></div></Form.Item><Form.Item label="图标文字" name="mark"><Input maxLength={8}/></Form.Item></div>
           <Form.Item label="搜索别名" name="alias"><Input maxLength={100}/></Form.Item>
           <div className="manager-switches"><Form.Item label="隐藏" name="hidden" valuePropName="checked"><Switch/></Form.Item><Form.Item label="新增标记" name="new" valuePropName="checked"><Switch/></Form.Item></div>
         </>}

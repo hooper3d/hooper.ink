@@ -1,7 +1,7 @@
 const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
 const crypto = require('node:crypto');
 const {promisify} = require('node:util');
-const {validateNavigation} = require('./navigation-model.cjs');
+const {validateNavigation, iconPath} = require('./navigation-model.cjs');
 const {emptyDocument, validateNote, imagePath} = require('./notes-model.cjs');
 const scrypt = promisify(crypto.scrypt), root = __dirname;
 const passwordOptions = {N:131072, r:8, p:1, maxmem:256 * 1024 * 1024};
@@ -19,6 +19,7 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
   fs.mkdirSync(dataDir, {recursive:true});
   const navFile = path.join(dataDir, 'navigation.json'), authFile = path.join(dataDir, 'auth.json');
   const noteFile = path.join(dataDir, 'notes.json'), imageDir = path.join(dataDir, 'note-images');
+  const iconDir = path.join(dataDir, 'site-icons');
   const atomicWrite = (file, data) => {
     const temporary = file + '.tmp';
     fs.writeFileSync(temporary, JSON.stringify(data, null, 2), {mode:0o600});
@@ -114,6 +115,14 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
       if (name.startsWith('/api/')) {
         if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth || localAutoLogin, authenticated:!!loggedIn, ...(localAutoLogin ? {localPreview:true} : {}), ...(loggedIn ? {csrf:session.csrf} : !auth && !production ? {setupToken} : {})}); return; }
         if (req.method === 'GET' && name === '/api/navigation') { reply(res, 200, navigation); return; }
+        if (['GET','HEAD'].includes(req.method) && name.startsWith('/api/site-icons/')) {
+          if (!iconPath.test(name)) throw error(404, '图标不存在');
+          const file = path.join(iconDir, path.basename(name));
+          if (!fs.existsSync(file)) throw error(404, '图标不存在');
+          res.setHeader('Content-Type', {'.png':'image/png','.jpg':'image/jpeg','.gif':'image/gif','.webp':'image/webp','.ico':'image/x-icon'}[path.extname(file)]);
+          res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+          res.end(req.method === 'HEAD' ? '' : fs.readFileSync(file)); return;
+        }
         if (name === '/api/notes' || name.startsWith('/api/note-images')) {
           if (!loggedIn) throw error(401, '请先登录');
           res.setHeader('Referrer-Policy', 'no-referrer');
@@ -162,6 +171,17 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
         }
         if (!loggedIn) throw error(401, '请先登录');
         if (!same(req.headers['x-csrf-token'], session.csrf)) throw error(403, '请求凭据无效，请重新登录');
+        if (req.method === 'POST' && name === '/api/site-icons') {
+          const bytes = await readBytes(req, 2 * 1024 * 1024);
+          const extension = bytes.length >= 24 && bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) ? 'png' : bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255 ? 'jpg' : bytes.length >= 10 && ['GIF87a','GIF89a'].includes(bytes.subarray(0,6).toString()) ? 'gif' : bytes.length >= 12 && bytes.subarray(0,4).toString() === 'RIFF' && bytes.subarray(8,12).toString() === 'WEBP' ? 'webp' : bytes.length >= 22 && bytes.readUInt32LE(0) === 65536 && bytes.readUInt16LE(4) > 0 ? 'ico' : null;
+          if (!extension) throw error(400, '支持 PNG、JPEG、GIF、WebP、ICO 图标');
+          fs.mkdirSync(iconDir, {recursive:true});
+          const used = fs.readdirSync(iconDir).reduce((sum, file) => sum + fs.statSync(path.join(iconDir,file)).size, 0);
+          if (used + bytes.length > 100 * 1024 * 1024) throw error(413, '图标存储已满');
+          const fileName = `${crypto.randomUUID()}.${extension}`;
+          fs.writeFileSync(path.join(iconDir,fileName), bytes, {mode:0o600, flag:'wx'});
+          reply(res, 201, {src:`/api/site-icons/${fileName}`}); return;
+        }
         if (req.method === 'POST' && name === '/api/note-images') {
           const bytes = await readBytes(req, 8 * 1024 * 1024);
           const extension = bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) ? 'png' : bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255 ? 'jpg' : ['GIF87a','GIF89a'].includes(bytes.subarray(0,6).toString()) ? 'gif' : bytes.subarray(0,4).toString() === 'RIFF' && bytes.subarray(8,12).toString() === 'WEBP' ? 'webp' : null;
@@ -198,6 +218,7 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
           if (input.revision !== navigation.revision) throw error(409, '内容已在其他页面更新，请重新载入后再编辑');
           let next;
           try { next = {...validateNavigation(input), revision:navigation.revision + 1}; } catch (e) { throw error(400, e.message); }
+          if (next.links.some(item => iconPath.test(item.iconUrl) && !fs.existsSync(path.join(iconDir,path.basename(item.iconUrl))))) throw error(400, '图标不存在，请重新上传');
           fs.copyFileSync(navFile, navFile + '.bak');
           atomicWrite(navFile, next); navigation = next;
           reply(res, 200, next); return;
