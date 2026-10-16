@@ -20,6 +20,8 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
   const navFile = path.join(dataDir, 'navigation.json'), authFile = path.join(dataDir, 'auth.json');
   const noteFile = path.join(dataDir, 'notes.json'), imageDir = path.join(dataDir, 'note-images');
   const iconDir = path.join(dataDir, 'site-icons');
+  const profileFile = path.join(dataDir, 'profile.json');
+  let profile = fs.existsSync(profileFile) ? JSON.parse(fs.readFileSync(profileFile, 'utf8')) : {avatarUrl:'./assets/avatar-horse-thumb.png'};
   const atomicWrite = (file, data) => {
     const temporary = file + '.tmp';
     fs.writeFileSync(temporary, JSON.stringify(data, null, 2), {mode:0o600});
@@ -115,6 +117,7 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
       if (name.startsWith('/api/')) {
         if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth || localAutoLogin, authenticated:!!loggedIn, ...(localAutoLogin ? {localPreview:true} : {}), ...(loggedIn ? {csrf:session.csrf} : !auth && !production ? {setupToken} : {})}); return; }
         if (req.method === 'GET' && name === '/api/navigation') { reply(res, 200, navigation); return; }
+        if (req.method === 'GET' && name === '/api/profile') { reply(res, 200, profile); return; }
         if (['GET','HEAD'].includes(req.method) && name.startsWith('/api/site-icons/')) {
           if (!iconPath.test(name)) throw error(404, '图标不存在');
           const file = path.join(iconDir, path.basename(name));
@@ -171,6 +174,13 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
         }
         if (!loggedIn) throw error(401, '请先登录');
         if (!same(req.headers['x-csrf-token'], session.csrf)) throw error(403, '请求凭据无效，请重新登录');
+        if (req.method === 'PUT' && name === '/api/profile') {
+          const input = await readBody(req);
+          if (typeof input.avatarUrl !== 'string' || !iconPath.test(input.avatarUrl) || !fs.existsSync(path.join(iconDir,path.basename(input.avatarUrl)))) throw error(400, '请上传头像图片');
+          const next = {avatarUrl:input.avatarUrl};
+          atomicWrite(profileFile, next); profile = next;
+          reply(res, 200, profile); return;
+        }
         if (req.method === 'POST' && name === '/api/site-icons') {
           const bytes = await readBytes(req, 2 * 1024 * 1024);
           const extension = bytes.length >= 24 && bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) ? 'png' : bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255 ? 'jpg' : bytes.length >= 10 && ['GIF87a','GIF89a'].includes(bytes.subarray(0,6).toString()) ? 'gif' : bytes.length >= 12 && bytes.subarray(0,4).toString() === 'RIFF' && bytes.subarray(8,12).toString() === 'WEBP' ? 'webp' : bytes.length >= 22 && bytes.readUInt32LE(0) === 65536 && bytes.readUInt16LE(4) > 0 ? 'ico' : null;
