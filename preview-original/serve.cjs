@@ -4,6 +4,8 @@ const {promisify} = require('node:util');
 const {validateNavigation} = require('./navigation-model.cjs');
 const {emptyDocument, validateNote, imagePath} = require('./notes-model.cjs');
 const scrypt = promisify(crypto.scrypt), root = __dirname;
+const passwordOptions = {N:131072, r:8, p:1, maxmem:256 * 1024 * 1024};
+const loginWindow = 10 * 60 * 1000;
 function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins = []} = {}) {
   const production = publicOrigins.length > 0;
   const allowedOrigins = publicOrigins.map(value => {
@@ -26,11 +28,36 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
   validateNote(note.document);
   let auth = fs.existsSync(authFile) ? JSON.parse(fs.readFileSync(authFile, 'utf8')) : null;
   if (production && !auth) throw Error('Production requires an existing owner password');
-  const sessions = new Map(), failures = new Map(), setupToken = crypto.randomBytes(32).toString('hex');
-  let setupBusy = false;
+  if (auth && auth.version !== undefined && auth.version !== 2) throw Error('Unsupported password format');
+  const attemptsFile = path.join(dataDir, 'login-attempts.json');
+  let attempts = fs.existsSync(attemptsFile) ? JSON.parse(fs.readFileSync(attemptsFile, 'utf8')) : [];
+  if (!Array.isArray(attempts) || attempts.length > 30 || attempts.some(item => !item || !Number.isFinite(item.at) || !/^[a-f0-9]{64}$/.test(item.address))) throw Error('Invalid login throttle state');
+  const sessions = new Map(), setupToken = crypto.randomBytes(32).toString('hex');
+  let setupBusy = false, loginBusy = false;
   const error = (status, message) => Object.assign(Error(message), {status});
   const reply = (res, status, data) => { res.writeHead(status, {'Content-Type':'application/json; charset=utf-8'}); res.end(JSON.stringify(data)); };
   const same = (a, b) => { if (typeof a !== 'string' || typeof b !== 'string') return false; const first = Buffer.from(a), second = Buffer.from(b); return first.length === second.length && crypto.timingSafeEqual(first, second); };
+  async function hashPassword(password) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    return {version:2, salt, hash:(await scrypt(password, salt, 64, passwordOptions)).toString('hex')};
+  }
+  function reserveLogin(req, res) {
+    const now = Date.now();
+    attempts = attempts.filter(item => item.at > now - loginWindow);
+    const ip = production && typeof req.headers['x-real-ip'] === 'string' ? req.headers['x-real-ip'].slice(0,64) : req.socket.remoteAddress;
+    const address = crypto.createHash('sha256').update(ip || 'unknown').digest('hex');
+    const local = attempts.filter(item => item.address === address), waits = [];
+    if (attempts.length >= 30) waits.push(Math.min(...attempts.map(item => item.at)) + loginWindow);
+    if (local.length >= 5) waits.push(Math.min(...local.map(item => item.at)) + loginWindow);
+    if (waits.length) {
+      const seconds = Math.max(1, Math.ceil((Math.max(...waits) - now) / 1000));
+      res.setHeader('Retry-After', String(seconds));
+      throw error(429, `尝试过多，请 ${seconds} 秒后重试`);
+    }
+    // Reserve before hashing so simultaneous requests and process restarts cannot bypass the limit.
+    attempts.push({at:now, address});
+    atomicWrite(attemptsFile, attempts);
+  }
   async function readBytes(req, limit) {
     if (Number(req.headers['content-length']) > limit) throw error(413, '数据过大');
     const chunks = []; let length = 0;
@@ -89,25 +116,30 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
             if (typeof input.password !== 'string' || input.password.length < 10 || input.password.length > 128) throw error(400, '密码需为 10–128 位');
             setupBusy = true;
             try {
-              const salt = crypto.randomBytes(16).toString('hex');
-              const next = {salt, hash:(await scrypt(input.password, salt, 64)).toString('hex')};
+              const next = await hashPassword(input.password);
               atomicWrite(authFile, next); auth = next;
             } finally { setupBusy = false; }
             reply(res, 201, startSession(res, port)); return;
           }
           if (!auth) throw error(409, '请先设置管理密码');
-          const address = production && typeof req.headers['x-real-ip'] === 'string' ? req.headers['x-real-ip'].slice(0,64) : req.socket.remoteAddress, failed = failures.get(address);
-          for (const [ip, value] of failures) if (value.until <= Date.now()) failures.delete(ip);
-          if (failed && failed.until > Date.now() && failed.count >= 5) throw error(429, '尝试过多，请 10 分钟后重试');
-          failures.set(address, {count:failed && failed.until > Date.now() ? failed.count + 1 : 1, until:failed && failed.until > Date.now() ? failed.until : Date.now() + 600000});
-          if (typeof input.password !== 'string' || input.password.length > 128) throw error(401, '密码不正确');
-          const candidate = (await scrypt(input.password, auth.salt, 64)).toString('hex');
-          if (!same(candidate, auth.hash)) {
-            throw error(401, '密码不正确');
+          if (loginBusy) {
+            res.setHeader('Retry-After', '1');
+            throw error(429, '正在验证，请稍后重试');
           }
-          failures.delete(address);
-          for (const [token, value] of sessions) if (value.expires <= Date.now()) sessions.delete(token);
-          reply(res, 200, startSession(res, port)); return;
+          reserveLogin(req, res);
+          loginBusy = true;
+          try {
+            if (typeof input.password !== 'string' || input.password.length > 128) throw error(401, '密码不正确');
+            const candidate = (await scrypt(input.password, auth.salt, 64, auth.version === 2 ? passwordOptions : {})).toString('hex');
+            if (!same(candidate, auth.hash)) throw error(401, '密码不正确');
+            if (auth.version !== 2) {
+              const next = await hashPassword(input.password);
+              atomicWrite(authFile, next); auth = next;
+            }
+            atomicWrite(attemptsFile, []); attempts = [];
+            for (const [token, value] of sessions) if (value.expires <= Date.now()) sessions.delete(token);
+            reply(res, 200, startSession(res, port)); return;
+          } finally { loginBusy = false; }
         }
         if (!loggedIn) throw error(401, '请先登录');
         if (!same(req.headers['x-csrf-token'], session.csrf)) throw error(403, '请求凭据无效，请重新登录');
