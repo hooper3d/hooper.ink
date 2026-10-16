@@ -29,6 +29,8 @@
 
 ## PWA
 
+登录 Cookie 和服务端会话均为固定 30 天有效期，关闭 PWA、手机或服务器重启不主动清除。`sessions.json` 以 600 权限持久化会话摘要及 CSRF；不保存原始登录 token，凭据指纹变化、会话到期或主动退出后失效。首次升级到持久会话时需重新登录一次，原密码与登录界面不变。备份和发布应保留该文件；不能把私人数据目录作为静态资源公开。
+
 首页通过 `/manifest.webmanifest` 声明独立窗口和本站品牌图标，兼容 Android 安装与 iOS「添加到主屏幕」。`/pwa.js` 注册根路径 `/sw.js`；发布时需同步安装 routes 配置，让 Nginx 转发这三个文件与 `/offline.html`，检查 manifest MIME 和 Service-Worker-Allowed 响应头。
 
 Service Worker 只为首页导航提供联网优先、断网时的提示页。Cache Storage 仅保存公开的 `/offline.html`，不缓存首页脚本、登录、API、随手记、图片附件或音乐；博客等其他路径不拦截。联网访问始终获取当前版本，不依赖清除旧应用缓存来更新。真实手机的安装入口由浏览器提供，微信内置浏览器不作为安装验收环境。

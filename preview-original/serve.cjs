@@ -6,6 +6,7 @@ const {emptyDocument, validateNote, imagePath} = require('./notes-model.cjs');
 const scrypt = promisify(crypto.scrypt), root = __dirname;
 const passwordOptions = {N:131072, r:8, p:1, maxmem:256 * 1024 * 1024};
 const loginWindow = 10 * 60 * 1000;
+const sessionSeconds = 30 * 24 * 3600;
 function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins = []} = {}) {
   const production = publicOrigins.length > 0;
   const allowedOrigins = publicOrigins.map(value => {
@@ -32,7 +33,21 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
   const attemptsFile = path.join(dataDir, 'login-attempts.json');
   let attempts = fs.existsSync(attemptsFile) ? JSON.parse(fs.readFileSync(attemptsFile, 'utf8')) : [];
   if (!Array.isArray(attempts) || attempts.length > 30 || attempts.some(item => !item || !Number.isFinite(item.at) || !/^[a-f0-9]{64}$/.test(item.address))) throw Error('Invalid login throttle state');
-  const sessions = new Map(), setupToken = crypto.randomBytes(32).toString('hex');
+  const sessionFile = path.join(dataDir, 'sessions.json'), setupToken = crypto.randomBytes(32).toString('hex');
+  const passwordKey = () => crypto.createHash('sha256').update(JSON.stringify(auth)).digest('hex');
+  const sessionKey = token => crypto.createHash('sha256').update(token || '').digest('hex');
+  let sessions = new Map();
+  if (fs.existsSync(sessionFile)) {
+    try {
+      const saved = JSON.parse(fs.readFileSync(sessionFile, 'utf8'));
+      if (saved.version !== 1 || !Array.isArray(saved.sessions) || saved.sessions.some(item => !item || !/^[a-f0-9]{64}$/.test(item.id) || !/^[a-f0-9]{64}$/.test(item.csrf) || !Number.isFinite(item.expires))) throw Error('Invalid sessions');
+      if (saved.passwordKey === passwordKey()) sessions = new Map(saved.sessions.filter(item => item.expires > Date.now()).map(({id, ...value}) => [id, value]));
+    } catch { console.warn('Saved login sessions are invalid; owner sign-in required'); }
+  }
+  function saveSessions(next) {
+    atomicWrite(sessionFile, {version:1, passwordKey:passwordKey(), sessions:[...next].map(([id, value]) => ({id, ...value}))});
+    sessions = next;
+  }
   let setupBusy = false, loginBusy = false;
   const error = (status, message) => Object.assign(Error(message), {status});
   const reply = (res, status, data) => { res.writeHead(status, {'Content-Type':'application/json; charset=utf-8'}); res.end(JSON.stringify(data)); };
@@ -71,8 +86,10 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
   }
   function startSession(res, port) {
     const token = crypto.randomBytes(32).toString('hex'), csrf = crypto.randomBytes(32).toString('hex');
-    sessions.set(token, {expires:Date.now() + 8 * 3600 * 1000, csrf});
-    res.setHeader('Set-Cookie', `${production?'__Host-hooper_admin':`hooper_admin_${port}`}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${production?'; Secure':''}`);
+    const next = new Map([...sessions].filter(([, value]) => value.expires > Date.now()));
+    next.set(sessionKey(token), {expires:Date.now() + sessionSeconds * 1000, csrf});
+    saveSessions(next);
+    res.setHeader('Set-Cookie', `${production?'__Host-hooper_admin':`hooper_admin_${port}`}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${sessionSeconds}${production?'; Secure':''}`);
     return {authenticated:true, configured:true, csrf};
   }
   const server = http.createServer(async (req, res) => {
@@ -87,8 +104,8 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
     try { name = decodeURIComponent(new URL(req.url, origin).pathname); } catch { reply(res, 400, {error:'地址无效'}); return; }
     const cookieName = production ? '__Host-hooper_admin' : `hooper_admin_${port}`;
     const cookie = (req.headers.cookie || '').split(';').map(value => value.trim()).find(value => value.startsWith(cookieName + '='))?.slice(cookieName.length + 1);
-    const session = sessions.get(cookie);
-    if (session && session.expires <= Date.now()) sessions.delete(cookie);
+    const id = sessionKey(cookie), session = sessions.get(id);
+    if (session && session.expires <= Date.now()) sessions.delete(id);
     const loggedIn = session && session.expires > Date.now();
     try {
       if (name.startsWith('/api/')) {
@@ -137,7 +154,6 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
               atomicWrite(authFile, next); auth = next;
             }
             atomicWrite(attemptsFile, []); attempts = [];
-            for (const [token, value] of sessions) if (value.expires <= Date.now()) sessions.delete(token);
             reply(res, 200, startSession(res, port)); return;
           } finally { loginBusy = false; }
         }
@@ -169,7 +185,7 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
           reply(res, 200, note); return;
         }
         if (req.method === 'POST' && name === '/api/logout') {
-          sessions.delete(cookie);
+          const next = new Map(sessions); next.delete(id); saveSessions(next);
           res.setHeader('Set-Cookie', `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${production?'; Secure':''}`);
           reply(res, 200, {authenticated:false, configured:true}); return;
         }
