@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const {promisify} = require('node:util');
 const {validateNavigation, iconPath} = require('./navigation-model.cjs');
 const {emptyDocument, validateNote, imagePath} = require('./notes-model.cjs');
+const musicSource = require('./music-source.cjs');
 const scrypt = promisify(crypto.scrypt), root = __dirname;
 const passwordOptions = {N:131072, r:8, p:1, maxmem:256 * 1024 * 1024};
 const loginWindow = 10 * 60 * 1000;
@@ -118,6 +119,12 @@ function createPreviewServer({dataDir = path.join(root, '.local'), publicOrigins
         if (req.method === 'GET' && name === '/api/session') { reply(res, 200, {configured:!!auth || localAutoLogin, authenticated:!!loggedIn, ...(localAutoLogin ? {localPreview:true} : {}), ...(loggedIn ? {csrf:session.csrf} : !auth && !production ? {setupToken} : {})}); return; }
         if (req.method === 'GET' && name === '/api/navigation') { reply(res, 200, navigation); return; }
         if (req.method === 'GET' && name === '/api/profile') { reply(res, 200, profile); return; }
+        if (req.method === 'GET' && ['/api/music/playlist','/api/music/track'].includes(name)) {
+          if (!loggedIn) throw error(401, '请先登录');
+          if (req.headers.origin && req.headers.origin !== origin) throw error(403, '请求来源不匹配');
+          const query = new URL(req.url, origin).searchParams;
+          reply(res, 200, await (name.endsWith('/playlist') ? musicSource.playlist(query.get('url')) : musicSource.track(query.get('id')))); return;
+        }
         if (['GET','HEAD'].includes(req.method) && name.startsWith('/api/site-icons/')) {
           if (!iconPath.test(name)) throw error(404, '图标不存在');
           const file = path.join(iconDir, path.basename(name));
