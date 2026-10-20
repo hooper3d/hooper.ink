@@ -21,6 +21,11 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
   const host = (req.headers.host || '').split(':')[0].toLowerCase();
+  if (['hooper.ink', 'www.hooper.ink'].includes(host) && !req.url.startsWith('/.well-known/acme-challenge/')) {
+    res.writeHead(301, { 'Location': `https://${host}${req.url}`, 'Cache-Control': 'no-store' });
+    res.end();
+    return;
+  }
   if (host === 'stock.hooper.ink' && !req.url.startsWith('/.well-known/acme-challenge/')) {
     res.writeHead(301, {
       'Location': `https://stock.hooper.ink${req.url}`,
@@ -41,6 +46,12 @@ const server = http.createServer((req, res) => {
 
   if (host === 'aigc.hooper.ink' && !req.url.startsWith('/.well-known/acme-challenge/')) {
     res.writeHead(301, { 'Location': `https://aigc.hooper.ink${req.url}`, 'Cache-Control': 'no-store' });
+    res.end();
+    return;
+  }
+
+  if (host === 'tv.hooper.ink' && !req.url.startsWith('/.well-known/acme-challenge/')) {
+    res.writeHead(301, { 'Location': `https://tv.hooper.ink${req.url}`, 'Cache-Control': 'no-store' });
     res.end();
     return;
   }

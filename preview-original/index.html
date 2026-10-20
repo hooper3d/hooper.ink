@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Hooper Navi</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/pwa/apple-touch-icon.png">
+  <meta name="theme-color" content="#F3F6FA">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Hooper Navi">
   <link rel="icon" href="./assets/hooper.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@600&display=swap" rel="stylesheet">
@@ -14,13 +19,14 @@
   <script>try { if ((localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark') document.documentElement.classList.add('dark'); } catch {}</script>
   <script src="./data.js" defer></script>
   <script src="./app.js" defer></script>
+  <script src="./pwa.js" defer></script>
   <script src="./ui/topbar.js" defer></script>
   <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8" defer></script>
 </head>
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="./" aria-label="Hooper Navi 首页"><span class="brand-logo" aria-hidden="true"></span><h1 aria-label="Hooper Navi"><span class="brand-wordmark" aria-hidden="true"></span></h1></a>
+      <div class="brand-group"><a class="brand" href="./" aria-label="Hooper Navi 首页"><span class="brand-logo" aria-hidden="true"></span><h1 aria-label="Hooper Navi"><span class="brand-wordmark" aria-hidden="true"></span></h1></a><div id="aboutTools"></div></div>
       <div class="header-actions">
         <div id="topbarTools"></div>
         <button id="themeToggle" class="icon-button" aria-label="切换深色主题"><i class="fas fa-moon" aria-hidden="true"></i></button>
@@ -35,7 +41,10 @@
     </section>
     <section class="search-area" aria-label="搜索">
       <form id="searchForm" class="search-box" role="search" action="https://www.google.com/search" method="get" target="_blank" rel="noopener noreferrer" autocomplete="off">
-        <select id="searchMode" aria-label="搜索范围"><option value="google">Google</option><option value="site">本站</option></select>
+        <span class="search-mode-switch">
+          <span id="searchModeIcon" class="search-mode-icon" data-mode="google" aria-hidden="true"></span>
+          <select id="searchMode" aria-label="搜索范围" title="Google 搜索"><option value="google">Google</option><option value="site">本站</option></select>
+        </span>
         <input id="searchInput" name="q" type="search" aria-label="Google 搜索" placeholder="搜索…" autocomplete="off" spellcheck="false">
         <button id="clearSearch" type="button" class="icon-button" aria-label="清空关键词" hidden><i class="fas fa-xmark" aria-hidden="true"></i></button>
         <button id="searchSubmit" type="submit" class="icon-button" aria-label="Google 搜索"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></button>

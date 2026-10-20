@@ -1,3 +1,4 @@
+const iconPath = /^\/api\/site-icons\/[a-f0-9-]{36}\.(png|jpg|gif|webp|ico)$/;
 function validUrl(value, allowRelative = true) {
   if (typeof value !== 'string' || !value.trim() || value.length > 2000) throw Error('网址无效');
   value = value.trim();
@@ -31,10 +32,10 @@ function validateNavigation(input) {
     if (!title || !categories.some(category => category.id === cat)) throw Error('网站名称或分类无效');
     const icon = text(item.icon, 80, true), tile = text(item.tile, 7, true) || '#617A99';
     if ((icon && !/^fa-[a-z0-9-]+$/.test(icon)) || !/^#[0-9a-f]{6}$/i.test(tile)) throw Error('图标或颜色无效');
-    return {id:id(item.id), title, url:validUrl(item.url), desc:text(item.desc, 200, true), cat, alias:text(item.alias, 100, true), icon, mark:text(item.mark, 8, true), iconUrl:item.iconUrl ? validUrl(item.iconUrl, false) : '', tile, new:item.new === true, hidden:item.hidden === true};
+    return {id:id(item.id), title, url:validUrl(item.url), desc:text(item.desc, 200, true), cat, alias:text(item.alias, 100, true), icon, mark:text(item.mark, 8, true), iconUrl:item.iconUrl ? (iconPath.test(item.iconUrl) ? item.iconUrl : validUrl(item.iconUrl, false)) : '', tile, new:item.new === true, hidden:item.hidden === true};
   });
   if (new Set(links.map(item => item.id)).size !== links.length) throw Error('网站标识重复');
   if (links.filter(item => !item.hidden).length > 24) throw Error('首页最多 24 个入口，请先隐藏暂时不用的网站');
   return {schema:1, categories, links};
 }
-module.exports = {validUrl, validateNavigation};
+module.exports = {validUrl, validateNavigation, iconPath};

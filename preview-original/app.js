@@ -62,7 +62,7 @@ function renderCard(item) {
   return `<article class="site-card" data-site="${escapeHtml(index)}">
     <a class="site-link" href="${escapeHtml(href)}" ${href !== '#' ? 'target="_blank" rel="noopener noreferrer"' : 'aria-haspopup="dialog"'}>
       <span class="site-icon${/^https?:\/\/github\.com(?:[/?#]|$)/.test(href) ? ' github-icon' : ''}" aria-hidden="true">${favicon ? `<img src="${escapeHtml(favicon)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false">` : ''}${fallback}</span>
-      <div class="site-copy"><div class="site-title"><h2 title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h2>${item.new ? '<span class="new-mark" title="新增" aria-label="新增"></span>' : ''}</div><p title="${escapeHtml(item.desc)}">${escapeHtml(item.desc)}</p></div>
+      <div class="site-copy"><div class="site-title"><h2 title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h2></div><p title="${escapeHtml(item.desc)}">${escapeHtml(item.desc)}</p></div>
     </a>
     <button class="favorite-button" data-favorite="${escapeHtml(index)}" aria-label="${escapeHtml(item.title)}：${isFavorite ? '取消常用' : '加入常用'}" aria-pressed="${isFavorite}" title="${isFavorite ? '取消常用' : '加入常用'}"><i class="${isFavorite ? 'fas' : 'far'} fa-star" aria-hidden="true"></i></button>
   </article>`;
@@ -91,6 +91,8 @@ function render() {
 function clearQuery() { searchInput.value = ''; searchQuery = ''; render(); searchInput.focus(); }
 function syncSearchMode() {
   const site = searchMode.value === 'site';
+  document.getElementById('searchModeIcon').dataset.mode = searchMode.value;
+  searchMode.title = site ? '本站搜索' : 'Google 搜索';
   searchInput.placeholder = site ? '搜索本站…' : '搜索…';
   searchInput.setAttribute('aria-label', site ? '搜索站内网站' : 'Google 搜索');
   searchSubmit.setAttribute('aria-label', site ? '查找站内网站' : 'Google 搜索');
