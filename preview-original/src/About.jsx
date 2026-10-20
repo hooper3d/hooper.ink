@@ -3,13 +3,25 @@ import {Drawer,Modal} from 'antd';
 
 export default function About({avatarUrl}){
   const [open,setOpen]=useState(false),[mobile,setMobile]=useState(()=>matchMedia('(max-width:520px)').matches);
-  const trigger=useRef(null);
+  const trigger=useRef(null),tiltCard=useRef(null);
   useEffect(()=>{
     const query=matchMedia('(max-width:520px)'),update=()=>setMobile(query.matches);
     query.addEventListener('change',update);
     return()=>query.removeEventListener('change',update);
   },[]);
   const returnFocus=()=>trigger.current?.focus();
+  const resetTilt=()=>{
+    tiltCard.current?.style.setProperty('--tilt-x','0deg');
+    tiltCard.current?.style.setProperty('--tilt-y','0deg');
+  };
+  const tilt=event=>{
+    if(event.pointerType!=='mouse'||!matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)').matches)return;
+    const bounds=event.currentTarget.getBoundingClientRect();
+    const x=Math.max(-1,Math.min(1,(event.clientX-bounds.left)/bounds.width*2-1));
+    const y=Math.max(-1,Math.min(1,(event.clientY-bounds.top)/bounds.height*2-1));
+    tiltCard.current?.style.setProperty('--tilt-x',`${-y*4}deg`);
+    tiltCard.current?.style.setProperty('--tilt-y',`${x*4}deg`);
+  };
   const profile=<section className="about-profile" aria-label="Hooper 个人名片">
     <img className="about-avatar" src={avatarUrl} alt="Hooper 头像" width="88" height="88"/>
     <h2>Hooper</h2>
@@ -22,6 +34,6 @@ export default function About({avatarUrl}){
   </section>;
   return <>
     <button ref={trigger} type="button" className="about-trigger" aria-label="关于 Hooper" aria-haspopup="dialog" aria-expanded={open} onClick={()=>setOpen(true)}>About</button>
-    {mobile?<Drawer title="About me" placement="bottom" size="min(620px, calc(100svh - 24px))" open={open} onClose={()=>setOpen(false)} afterOpenChange={visible=>{if(!visible)returnFocus()}} className="about-sheet" styles={{body:{padding:'8px 24px 32px'}}}>{profile}</Drawer>:<Modal title="About me" centered width={480} open={open} onCancel={()=>setOpen(false)} afterClose={returnFocus} footer={null} className="about-modal" styles={{body:{padding:'12px 24px 28px'}}}>{profile}</Modal>}
+    {mobile?<Drawer title="About me" placement="bottom" size="min(620px, calc(100svh - 24px))" open={open} onClose={()=>setOpen(false)} afterOpenChange={visible=>{if(!visible)returnFocus()}} className="about-sheet" styles={{body:{padding:'8px 24px 32px'}}}>{profile}</Drawer>:<Modal title="About me" centered width={480} open={open} onCancel={()=>setOpen(false)} afterClose={()=>{resetTilt();returnFocus()}} footer={null} modalRender={node=><div className="about-perspective" onPointerMove={tilt} onPointerLeave={resetTilt} onPointerCancel={resetTilt}><div ref={tiltCard} className="about-tilt-card">{node}</div></div>} className="about-modal" styles={{body:{padding:'12px 24px 28px'}}}>{profile}</Modal>}
   </>;
 }

@@ -1,4 +1,4 @@
-import React,{useEffect,useRef,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {ConfigProvider,Popover,theme} from 'antd';
 import zhCN from 'antd/locale/zh_CN';
@@ -28,7 +28,7 @@ function Topbar(){
   const [session,setSession]=useState(null),[privateDirty,setPrivateDirty]=useState(false);
   const [avatarUrl,setAvatarUrl]=useState('./assets/avatar-horse-thumb.png');
   useEffect(()=>{let active=true;fetch('/api/profile').then(response=>{if(!response.ok)throw Error();return response.json()}).then(profile=>{if(active)setAvatarUrl(profile.avatarUrl)}).catch(()=>{});return()=>{active=false}},[]);
-  useEffect(()=>{if(!session?.authenticated&&open&&open!=='weather')setOpen(null)},[session?.authenticated,open]);
+  useEffect(()=>{if(!session?.authenticated&&open&&!['weather','calendar'].includes(open))setOpen(null)},[session?.authenticated,open]);
   const weatherTrigger=useRef(null),calendarTrigger=useRef(null),weatherPanelRef=useRef(null),calendarPanelRef=useRef(null);
   useEffect(()=>{
     const observer=new MutationObserver(()=>setDark(document.documentElement.classList.contains('dark')));
@@ -56,7 +56,6 @@ function Topbar(){
     {id:'video',label:'影视',icon:<i className="fas fa-clapperboard" aria-hidden="true"/>,onClick:()=>window.open('https://tv.hooper.ink/','_blank','noopener,noreferrer')},
     {id:'music',label:'音乐',icon:<i className="fas fa-music" aria-hidden="true"/>,active:open==='music',renderItem:button=><MusicPlayer triggerElement={button} open={open==='music'} onOpenChange={value=>setOpen(value?'music':null)}/>},
     ...(session?.authenticated?[{id:'notes',label:'随手记',icon:<i className="fas fa-note-sticky" aria-hidden="true"/>,active:open==='notes',renderItem:button=><PrivateNotes triggerElement={button} session={session} onSessionChange={setSession} onDirtyChange={setPrivateDirty} open={open==='notes'} onOpenChange={value=>setOpen(value?'notes':null)}/>}]:[]),
-    {id:'calendar',label:'日历',icon:<i className="far fa-calendar" aria-hidden="true"/>,active:open==='calendar',renderItem:button=><Popover open={open==='calendar'} onOpenChange={value=>setOpen(value?'calendar':null)} afterOpenChange={value=>{if(value)calendarPanelRef.current?.querySelector('.calendar-cell.selected')?.focus()}} trigger="click" placement="top" arrow={false} content={calendarPanel}>{React.cloneElement(button,{ref:node=>{button.props.ref(node);calendarTrigger.current=node},'aria-haspopup':'dialog','aria-expanded':open==='calendar'})}</Popover>},
     {id:'calculator',label:'计算器',icon:<i className="fas fa-calculator" aria-hidden="true"/>,active:open==='calculator',renderItem:button=><Calculator triggerElement={button} open={open==='calculator'} onOpenChange={value=>setOpen(value?'calculator':null)}/>}
   ];
   return <ConfigProvider locale={zhCN} theme={{algorithm:dark?theme.darkAlgorithm:theme.defaultAlgorithm,token:{motion:!matchMedia('(prefers-reduced-motion: reduce)').matches,fontFamily:'Inter,"Noto Sans SC",sans-serif',colorPrimary:token('--accent'),colorText:token('--text'),colorTextLightSolid:dark?token('--bg'):token('--surface'),colorTextSecondary:token('--muted'),colorTextTertiary:token('--muted'),colorBgBase:token('--bg'),colorBgContainer:token('--surface'),colorBgElevated:token('--surface'),colorBorder:token('--line'),colorBorderSecondary:token('--line'),colorPrimaryBg:token('--selected'),borderRadius:10,boxShadowSecondary:'0 12px 40px #17213126'},components:{Calendar:{fullBg:token('--surface'),itemActiveBg:token('--selected')}}}}>
@@ -65,7 +64,9 @@ function Topbar(){
       <Popover open={open==='weather'} onOpenChange={value=>setOpen(value?'weather':null)} afterOpenChange={value=>{if(value)weatherPanelRef.current?.querySelector('button')?.focus()}} trigger="click" placement="bottom" arrow={false} content={weatherPanel}>
         <button ref={weatherTrigger} className="topbar-trigger weather-trigger" aria-haspopup="dialog" aria-expanded={open==='weather'} aria-label={`南京${current?` ${status.label} ${degrees(current.temperature)}`:weatherLoading?'天气加载中':'天气暂不可用'}，查看七日预报`}><WeatherIcon code={current?.code} isDay={current?.isDay}/><span className="weather-city">南京</span><strong>{current?degrees(current.temperature):'—'}</strong></button>
       </Popover>
-      <div className="topbar-trigger date-trigger" aria-label={`${dateFormat.format(now)} 农历${lunarLabel(key,true)} 北京时间${timeFormat.format(now)}`}><span className="header-clock">{timeFormat.format(now)}</span><span className="header-date">{dateFormat.format(now)}</span><span className="compact-date">{Number(key.slice(5,7))}/{Number(key.slice(8))}</span><span className="header-lunar">{lunarLabel(key,true)}</span></div>
+      <Popover open={open==='calendar'} onOpenChange={value=>setOpen(value?'calendar':null)} afterOpenChange={value=>{if(value)calendarPanelRef.current?.querySelector('.calendar-cell.selected')?.focus()}} trigger="click" placement="bottomRight" arrow={false} content={calendarPanel}>
+      <button ref={calendarTrigger} type="button" className="topbar-trigger date-trigger" aria-haspopup="dialog" aria-expanded={open==='calendar'} aria-label={`${dateFormat.format(now)} 农历${lunarLabel(key,true)} 北京时间${timeFormat.format(now)}`}><span className="header-clock">{timeFormat.format(now)}</span><span className="header-date">{dateFormat.format(now)}</span><span className="compact-date">{Number(key.slice(5,7))}/{Number(key.slice(8))}</span><span className="header-lunar">{lunarLabel(key,true)}</span></button>
+      </Popover>
       {createPortal(<NavigationManager session={session} onSessionChange={setSession} privateDirty={privateDirty} avatarUrl={avatarUrl} onAvatarChange={setAvatarUrl}/>,document.getElementById('accountTools'))}
     </div>
     {session?.authenticated&&createPortal(<Dock className="hooper-dock" theme={dark?'dark':'light'} items={dockItems} baseItemSize={42} magnification={42} panelHeight={60} gap={16} roundness={.55} bounce={false} showBadges={false} style={{width:dockItems.length*54+(dockItems.length-1)*16+18,'--dock-panel':'var(--surface)','--dock-panel-edge':'var(--line)','--dock-panel-highlight':'var(--hover)','--dock-panel-shadow':'0 8px 28px #17213118','--dock-tile':'var(--icon-bg)','--dock-tile-edge':'var(--line)','--dock-tile-highlight':'var(--hover)','--dock-tile-shadow':'none','--dock-ink':'var(--text)','--dock-label':'var(--surface)','--dock-label-ink':'var(--text)','--dock-dot':'var(--accent)'}}/>,document.getElementById('desktopDock'))}
