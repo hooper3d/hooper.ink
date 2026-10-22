@@ -1,7 +1,7 @@
 ---
 title: TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造
 date: 2026-06-06
-tags: [学习笔记, 二次开发, 多智能体]
+tags: [AI Agent]
 slug: trading-agents-ashare-learning
 summary: 基于 TradingAgents-AShare 开源项目的一次拆解与改造记录：原项目选型、部署踩坑、A 股规则适配层、main.py 依赖图梳理，以及 fork 心态下如何把别人的项目变成自己的工具。
 location: 南京

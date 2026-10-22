@@ -2,163 +2,47 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>当两个 AI Agent 学会协作，我成了「协议制定者」 - Hooper 的博客</title>
   <meta name="description" content="单个 AI 写代码、写文档、做设计都能做，但当两个 AI Agent 配上 ops 协议、共享 PROJECT.md / TASKS.md / HANDOFF.md，效率会突然提升一个量级——人从「传话的中转站」升级成「协作规则制定者」。">
-  <meta name="keywords" content="AI Agent, 多智能体, 协作协议, 工作流, Hooper, hooper.ink, 博客">
   <meta name="author" content="Hooper">
-  <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://hooper.ink/blog/posts/ai-agent-collab-protocol.html">
-
-  <!-- Open Graph -->
   <meta property="og:title" content="当两个 AI Agent 学会协作，我成了「协议制定者」 - Hooper 的博客">
   <meta property="og:description" content="单个 AI 写代码、写文档、做设计都能做，但当两个 AI Agent 配上 ops 协议、共享 PROJECT.md / TASKS.md / HANDOFF.md，效率会突然提升一个量级——人从「传话的中转站」升级成「协作规则制定者」。">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://hooper.ink/blog/posts/ai-agent-collab-protocol.html">
   <meta property="og:site_name" content="Hooper 的博客">
-  <meta property="og:image" content="/blog/assets/images/cover-ai-agent-collab-protocol.webp">
-
-  <!-- Twitter Card -->
+  <meta property="og:image" content="https://hooper.ink/blog/assets/images/cover-ai-agent-collab-protocol.webp">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="当两个 AI Agent 学会协作，我成了「协议制定者」 - Hooper 的博客">
   <meta name="twitter:description" content="单个 AI 写代码、写文档、做设计都能做，但当两个 AI Agent 配上 ops 协议、共享 PROJECT.md / TASKS.md / HANDOFF.md，效率会突然提升一个量级——人从「传话的中转站」升级成「协作规则制定者」。">
-  <meta name="twitter:image" content="/blog/assets/images/cover-ai-agent-collab-protocol.webp">
-
-  <meta property="article:published_time" content="2026-06-08">
-  <meta property="article:author" content="Hooper">
-
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐅</text></svg>">
-
-  <!-- 依赖 -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'], serif: ['Noto Serif SC', 'serif'] },
-          colors: {
-            cyber: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a' }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
-    .prose { line-height: 1.85; }
-    .prose h2 { font-size: 1.75rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(20,184,166,0.15); scroll-margin-top: 5rem; }
-    .prose h3 { font-size: 1.35rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.75rem; scroll-margin-top: 5rem; }
-    .prose p { margin-bottom: 1.1rem; }
-    .prose a { color: #14b8a6; text-decoration: underline; text-underline-offset: 3px; }
-    .prose a:hover { color: #0d9488; }
-    .prose blockquote { border-left: 4px solid #14b8a6; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: #475569; background: rgba(20,184,166,0.05); border-radius: 0 0.5rem 0.5rem 0; }
-    .dark .prose blockquote { color: #94a3b8; background: rgba(20,184,166,0.08); }
-    .prose code { background: rgba(20,184,166,0.12); color: #0d9488; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; font-family: 'SF Mono', 'Monaco', 'Consolas', monospace; }
-    .dark .prose code { background: rgba(45,212,191,0.18); color: #5eead4; }
-    .prose pre { background: #0f172a !important; border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(20,184,166,0.2); }
-    .prose pre code { background: transparent; color: #e2e8f0; padding: 0; font-size: 0.875rem; }
-    .prose ul, .prose ol { padding-left: 1.75rem; margin-bottom: 1.1rem; }
-    .prose li { margin-bottom: 0.4rem; }
-    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
-    .prose th, .prose td { border: 1px solid rgba(20,184,166,0.2); padding: 0.6rem 0.85rem; text-align: left; }
-    .prose th { background: rgba(20,184,166,0.1); font-weight: 600; }
-    .prose img { border-radius: 0.5rem; margin: 1.5rem auto; max-width: 100%; }
-    .prose hr { border: none; border-top: 1px dashed rgba(20,184,166,0.3); margin: 2rem 0; }
-    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
-    .dark .glass { background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,184,0.1); }
-    .card-hover { transition: all 0.3s ease; }
-    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(20,184,166,0.2); }
-    .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.04) 1px, transparent 1px); background-size: 32px 32px; }
-    .dark .bg-grid { background-image: linear-gradient(rgba(20,184,166,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,146,0.06) 1px, transparent 1px); }
-    .tag { display: inline-block; padding: 0.125rem 0.625rem; background: rgba(20, 184, 166, 0.1); color: #0d9488; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem; }
-    .dark .tag { background: rgba(45, 212, 191, 0.15); color: #5eead4; }
-    .toc-sidebar { display: none; }
-    @media (min-width: 1024px) { .toc-sidebar { display: block; } }
-    .toc-link { display: block; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: #64748b; transition: all 0.2s; border-left: 2px solid transparent; }
-    .dark .toc-link { color: #94a3b8; }
-    .toc-link:hover { color: #0d9488; background: rgba(20,184,166,0.08); }
-    .dark .toc-link:hover { color: #2dd4bf; }
-    .toc-link.active { color: #0d9488; border-left-color: #14b8a6; background: rgba(20,184,166,0.08); }
-    .dark .toc-link.active { color: #2dd4bf; border-left-color: #2dd4bf; }
-    .toc-link-h3 { padding-left: 1rem; font-size: 0.8rem; }
-    .toc-link-h2 { font-weight: 500; }
-    @keyframes breathe { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
-  </style>
+  <meta name="twitter:image" content="https://hooper.ink/blog/assets/images/cover-ai-agent-collab-protocol.webp">
+<meta property="article:published_time" content="2026-06-08">  <link rel="icon" href="/blog/assets/hooper.svg" type="image/svg+xml">
+  <script>try { if ((localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark') document.documentElement.classList.add('dark'); } catch { if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark'); }</script>
+  <link rel="stylesheet" href="/blog/assets/blog.css?v=a95913f4ca41">
+  <script src="/blog/assets/blog.js?v=a95913f4ca41" defer></script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200 bg-grid">
-<!-- Top Bar -->
-<header class="sticky top-0 z-40 glass">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center space-x-3">
-        <a href="/" class="flex items-center space-x-2 text-slate-700 dark:text-slate-200 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyber-400 to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyber-500/20">
-            <i class="fas fa-paw"></i>
-          </div>
-          <span class="font-bold">hooper.ink</span>
-        </a>
-        <span class="text-slate-300 dark:text-slate-700">|</span>
-        <a href="/blog/" class="text-sm text-slate-500 dark:text-slate-400 hover:text-cyber-500 dark:hover:text-cyber-400 transition-colors">博客</a>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <a class="brand" href="/" aria-label="Hooper Navi 首页"><span class="brand-logo" aria-hidden="true"></span><span class="brand-wordmark" aria-hidden="true"></span></a>
+        <a class="section-link" href="/blog/" aria-current="false">博客</a>
       </div>
-      <button id="themeToggle" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-        <i class="fas fa-moon text-slate-600 dark:text-slate-300"></i>
-      </button>
+      <nav class="header-actions" aria-label="网站导航"><a href="/">返回导航</a><button id="themeToggle" class="theme-toggle" type="button" hidden>深色</button></nav>
     </div>
-  </div>
-</header>
-
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex gap-8">
-  <!-- TOC Sidebar -->
-  <aside class="toc-sidebar w-60 shrink-0">
-    <div class="sticky top-20 glass rounded-xl p-4">
-      <h3 class="text-sm font-bold mb-3 text-slate-700 dark:text-slate-200">
-        <i class="fas fa-list-ul mr-1.5 text-cyber-500"></i>目录
-      </h3>
-      <nav id="tocNav" class="space-y-1">
-        <!-- TOC injected by JS -->
-      </nav>
-    </div>
-  </aside>
-
-  <!-- Article -->
-  <article class="flex-1 min-w-0">
-    <!-- Cover -->
-    
-    <div class="mb-8 rounded-2xl overflow-hidden">
-      <img src="/blog/assets/images/cover-ai-agent-collab-protocol.webp" alt="当两个 AI Agent 学会协作，我成了「协议制定者」 - Hooper 的博客" class="w-full h-64 object-cover">
-    </div>
-    
-
-    <!-- Meta -->
-    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
-      <span><i class="far fa-calendar mr-1"></i>2026-06-08</span>
-      <span>·</span>
-      <span><i class="fas fa-map-marker-alt mr-1"></i>南京</span>
-      <span>·</span>
-      <span><i class="far fa-clock mr-1"></i>5 分钟</span>
-      <span>·</span>
-      <span id="busuanzi_container_page_pv" class="hidden md:inline">
-        <i class="far fa-eye mr-1"></i>阅读 <span id="busuanzi_value_page_pv" class="font-semibold text-cyber-500">-</span>
-      </span>
-      
-      <span class="hidden md:inline">·</span>
-      <div class="hidden md:flex flex-wrap gap-1.5">
-        <span class="tag">AI Agent</span><span class="tag">多智能体</span><span class="tag">协作协议</span><span class="tag">工作流</span>
-      </div>
-      
-    </div>
-
-    <h1 class="text-4xl font-bold mb-6 leading-tight">当两个 AI Agent 学会协作，我成了「协议制定者」 - Hooper 的博客</h1>
-
-    <!-- Content -->
-    <div class="prose max-w-none text-slate-700 dark:text-slate-300">
-      <p>刚折腾完小龙虾（OpenClaw），又出来一匹马（Hermes Agent）。框架换了一套，协作的痛点没换——两个 AI 一起干活时，「谁该干啥、记啥、交接啥」这件事，还是要人想清楚。</p>
+  </header>
+<main id="main" class="reading-layout" tabindex="-1">
+<aside class="desktop-toc"><div class="toc-sticky"><h2>本篇目录</h2>  <nav aria-label="文章目录"><a class="toc-link toc-level-2" href="#_1">一、起点：我成了&#34;人肉通信协议&#34;</a><a class="toc-link toc-level-2" href="#ai">二、转折：AI 真正需要的不是&#34;聊天&#34;，是&#34;协议&#34;</a><a class="toc-link toc-level-2" href="#ops-5-markdown">三、解法：ops 文件夹 + 5 个 Markdown</a><a class="toc-link toc-level-2" href="#_2">四、效果：流程跑通了</a><a class="toc-link toc-level-2" href="#ai_1">五、最让我震惊的：AI 变得像&#34;虚拟同事&#34;</a><a class="toc-link toc-level-2" href="#_3">六、对未来的判断</a><a class="toc-link toc-level-2" href="#_4">七、但这有个反直觉的前提</a><a class="toc-link toc-level-2" href="#_5">八、结语：我从&#34;传话的人&#34;升级成&#34;制定规则的人&#34;</a></nav>
+</div></aside>  <article class="reading-column">
+    <header class="article-heading">
+      <a class="back-link" href="/blog/">返回全部文章</a>
+      <h1>当两个 AI Agent 学会协作，我成了「协议制定者」</h1>
+      <div class="post-meta"><time datetime="2026-06-08">2026-06-08</time><span>南京</span><span>6 分钟阅读</span><span id="busuanzi_container_page_pv" style="display:none">阅读 <span id="busuanzi_value_page_pv"></span></span></div>
+<ul class="tags" aria-label="文章标签"><li>AI Agent</li></ul>    </header>
+<details class="mobile-toc"><summary>本篇目录</summary>  <nav aria-label="文章目录"><a class="toc-link toc-level-2" href="#_1">一、起点：我成了&#34;人肉通信协议&#34;</a><a class="toc-link toc-level-2" href="#ai">二、转折：AI 真正需要的不是&#34;聊天&#34;，是&#34;协议&#34;</a><a class="toc-link toc-level-2" href="#ops-5-markdown">三、解法：ops 文件夹 + 5 个 Markdown</a><a class="toc-link toc-level-2" href="#_2">四、效果：流程跑通了</a><a class="toc-link toc-level-2" href="#ai_1">五、最让我震惊的：AI 变得像&#34;虚拟同事&#34;</a><a class="toc-link toc-level-2" href="#_3">六、对未来的判断</a><a class="toc-link toc-level-2" href="#_4">七、但这有个反直觉的前提</a><a class="toc-link toc-level-2" href="#_5">八、结语：我从&#34;传话的人&#34;升级成&#34;制定规则的人&#34;</a></nav>
+</details>    <div class="prose"><p>刚折腾完小龙虾（OpenClaw），又出来一匹马（Hermes Agent）。框架换了一套，协作的痛点没换——两个 AI 一起干活时，「谁该干啥、记啥、交接啥」这件事，还是要人想清楚。</p>
 <p>今天在开发一个新项目的时候，被两个 AI Agent 之间的高效协作吓到了。</p>
 <p>真正让我震惊的，不是单个 AI 能写多少代码，而是<strong>两个 AI Agent 之间如果建立了协作规则，效率会突然变得很可怕</strong>。</p>
 <h2 id="_1">一、起点：我成了"人肉通信协议"</h2>
@@ -182,7 +66,7 @@
 <p>人类的协作靠会议、邮件、文档、走流程。AI 的协作也可以走类似的路径——但 AI 没有"主动找文档"的习惯（默认只看当前会话窗口），所以<strong>协议必须是被强制要求的</strong>，而不是靠 AI 的自觉。</p>
 <h2 id="ops-5-markdown">三、解法：ops 文件夹 + 5 个 Markdown</h2>
 <p>后来我们设计了一套很简单的机制：在项目根目录下创建一个 <code>ops</code> 文件夹，专门作为 Codex 和 Cyber Tiger 的协作通道。里面放几个 Markdown 文件：</p>
-<div class="highlight"><pre><span></span><code>ops/
+<div class="codehilite"><pre><span></span><code>ops/
 ├──<span class="w"> </span>PROJECT.md<span class="w">          </span><span class="c1"># 项目定位、目标、用户偏好</span>
 ├──<span class="w"> </span>TASKS.md<span class="w">            </span><span class="c1"># 当前任务、优先级、验收标准</span>
 ├──<span class="w"> </span>HANDOFF.md<span class="w">          </span><span class="c1"># 交接区，Codex 改完写这里</span>
@@ -204,7 +88,7 @@
 </ul>
 <h2 id="_2">四、效果：流程跑通了</h2>
 <p>这个机制建立后，整个流程变成了：</p>
-<div class="highlight"><pre><span></span><code>我提出方向
+<div class="codehilite"><pre><span></span><code>我提出方向
   ↓
 Cyber Tiger 整理成标准任务（写入 TASKS.md）
   ↓
@@ -290,123 +174,19 @@ Cyber Tiger 读取交接并验收
 <blockquote>
 <p>不是我一个人在开发平台，而是我在管理一个小型 AI 团队。</p>
 </blockquote>
-<p>这可能才刚刚开始。</p>
-    </div>
-
-    <!-- Prev/Next -->
-    <nav class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
-      
-      <a href="/blog/posts/trading-agents-ashare-learning.html" class="card-hover glass rounded-xl p-4 flex-1 group">
-        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-arrow-left mr-1"></i>上一篇</div>
-        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors line-clamp-1">TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造</div>
-      </a>
-      
-      <a href="/blog/" class="card-hover glass rounded-xl p-4 sm:w-48 text-center group">
-        <div class="text-xs text-slate-400 mb-1"><i class="fas fa-th-list mr-1"></i>博客首页</div>
-        <div class="font-semibold group-hover:text-cyber-500 dark:group-hover:text-cyber-400 transition-colors">所有文章</div>
-      </a>
-      
-      <div class="flex-1"></div>
-      
-    </nav>
-
-    <!-- Giscus -->
-    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
-      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200">
-        <i class="far fa-comments mr-2 text-cyber-500"></i>评论
-      </h3>
-      <div class="giscus"></div>
-    </div>
+<p>这可能才刚刚开始。</p></div>
+    <nav class="post-pagination" aria-label="文章翻页">
+<a href="/blog/posts/trading-agents-ashare-learning.html"><span>上一篇</span><strong>TradingAgents-AShare 拆解笔记：一个开源 A 股多智能体投研框架的部署与改造</strong></a>    </nav>
+    <a class="back-link end-link" href="/blog/">返回全部文章</a>
+    <section class="comments" aria-labelledby="commentsHeading">
+      <h2 id="commentsHeading">交流</h2><p>评论由 GitHub Discussions 提供。</p>
+      <a href="https://github.com/hooper3d/hooper.ink/discussions" target="_blank" rel="noopener noreferrer">前往 GitHub 讨论</a>
+      <button id="loadComments" type="button" hidden>加载评论</button>
+      <div class="giscus"></div><p id="commentsStatus" role="status"></p>
+      <script type="application/json" id="commentsConfig">{"category": "General", "category_id": "DIC_kwDOSGEnYc4C7Iyy", "emit_metadata": "0", "enabled": true, "input_position": "bottom", "lang": "zh-CN", "loading": "lazy", "mapping": "pathname", "reactions_enabled": "1", "repo": "hooper3d/hooper.ink", "repo_id": "R_kgDOSGEnYQ", "strict": "0", "theme": "preferred_color_scheme"}</script>
+    </section>
   </article>
-</div>
-
-<!-- TOC Script -->
-<script>
-(function() {
-  const article = document.querySelector('article .prose');
-  if (!article) return;
-  const headings = article.querySelectorAll('h2, h3');
-  if (headings.length === 0) return;
-  const nav = document.getElementById('tocNav');
-  headings.forEach((h, i) => {
-    h.id = h.id || ('h-' + i + '-' + h.textContent.trim().replace(/\s+/g, '-').toLowerCase().slice(0, 40));
-    const a = document.createElement('a');
-    a.href = '#' + h.id;
-    a.className = 'toc-link ' + (h.tagName === 'H2' ? 'toc-link-h2' : 'toc-link-h3');
-    a.textContent = h.textContent.trim();
-    nav.appendChild(a);
-  });
-  // Scroll-spy
-  const tocLinks = nav.querySelectorAll('.toc-link');
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        tocLinks.forEach(l => l.classList.remove('active'));
-        const active = nav.querySelector('a[href="#' + e.target.id + '"]');
-        if (active) active.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -75% 0px' });
-  headings.forEach(h => obs.observe(h));
-})();
-</script>
-
-<!-- Footer -->
-<footer class="mt-20 pb-8 text-center text-xs text-slate-400">
-  <p>Copyright &copy; 2026 Hooper 的数字领地 · 赛博老虎驻守中</p>
-  <p class="mt-1">
-    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="hover:text-cyber-400 transition-colors">
-      苏ICP备2022029383号-1
-    </a>
-  </p>
-</footer>
-
-<script>
-  // Theme
-  const themeToggle = document.getElementById('themeToggle');
-  function setTheme(dark) {
-    if (dark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); }
-    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); }
-  }
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
-  }
-  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    setTheme(true);
-  }
-
-  // highlight.js
-  if (typeof hljs !== 'undefined') { hljs.highlightAll(); }
-</script>
-
-
-<!-- Giscus Comments -->
-<script>
-  (function() {
-    const script = document.createElement('script');
-    script.src = 'https://giscus.app/client.js';
-    script.setAttribute('data-repo', 'hooper3d/hooper.ink');
-    script.setAttribute('data-repo-id', 'R_kgDOSGEnYQ');
-    script.setAttribute('data-category', 'General');
-    script.setAttribute('data-category-id', 'DIC_kwDOSGEnYc4C7Iyy');
-    script.setAttribute('data-mapping', 'pathname');
-    script.setAttribute('data-strict', '0');
-    script.setAttribute('data-reactions-enabled', '1');
-    script.setAttribute('data-emit-metadata', '0');
-    script.setAttribute('data-input-position', 'bottom');
-    script.setAttribute('data-theme', 'preferred_color_scheme');
-    script.setAttribute('data-lang', 'zh-CN');
-    script.setAttribute('data-loading', 'lazy');
-    script.setAttribute('crossorigin', 'anonymous');
-    script.async = true;
-    document.body.appendChild(script);
-  })();
-</script>
-
-
-
-<!-- busuanzi 阅读数 -->
-<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-</body>
+</main>
+  <footer class="site-footer"><span>© 2026 Hooper</span><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">苏ICP备2022029383号-1</a></footer>
+<script type="application/json" id="readCountConfig">"https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"</script></body>
 </html>

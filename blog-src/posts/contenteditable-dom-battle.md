@@ -1,7 +1,7 @@
 ---
 title: contenteditable 踩坑记：一场与 DOM 的四次博弈
 date: 2026-04-21
-tags: [前端, DOM, JavaScript, contenteditable]
+tags: [开发实践]
 slug: contenteditable-dom-battle
 summary: 把视频生成平台的 textarea 升级为支持素材引用的 contenteditable div，踩了四个大坑才找到正确答案。记录整个思考过程和根因分析。
 location: 南京

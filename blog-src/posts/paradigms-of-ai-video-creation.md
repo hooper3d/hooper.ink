@@ -1,7 +1,7 @@
 ---
 title: AIGC视频创作中的人类主体性重构：基于两种创作范式的比较研究
 date: 2026-05-20
-tags: [AIGC, 创作哲学, 人机协同, AI Agent]
+tags: [AI 创作]
 slug: paradigms-of-ai-video-creation
 summary: 本文提出 AIGC 视频创作中存在控制型范式与涌现型范式两种根本性创作认识论，从哲学、技术与社会三个层面系统分析其理论基础与实践逻辑。
 location: 南京

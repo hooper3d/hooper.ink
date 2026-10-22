@@ -1,7 +1,7 @@
 ---
 title: 从零搭建个人导航站：赛博老虎的上线之旅
 date: 2026-04-18
-tags: [前端, 部署, 个人项目]
+tags: [开发实践]
 slug: rebuild-nav-site
 summary: 刚折腾完小龙虾(openclaw) 又出来一匹马（Cyber Tiger ），为了给这匹赛博老虎按个家，把原来的个人导航站拆了重新开发。记录搭建过程中遇到的坑和心得。
 location: 南京

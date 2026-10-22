@@ -1,7 +1,7 @@
 ---
 title: 给 AI 助手构建视觉传达能力
 date: 2026-05-09
-tags: [AI Agent, 多模态, Skill 设计]
+tags: [AI Agent]
 slug: teach-hermes-to-draw
 summary: 从对话工具到有技能有权限的 Agent：给 Cyber Tiger 构建视觉传达能力的设计理念、技术架构与六步闭环工作流。
 location: 南京

@@ -1,7 +1,7 @@
 ---
 title: 当两个 AI Agent 学会协作，我成了「协议制定者」
 date: 2026-06-08
-tags: [AI Agent, 多智能体, 协作协议, 工作流]
+tags: [AI Agent]
 slug: ai-agent-collab-protocol
 summary: 单个 AI 写代码、写文档、做设计都能做，但当两个 AI Agent 配上 ops 协议、共享 PROJECT.md / TASKS.md / HANDOFF.md，效率会突然提升一个量级——人从「传话的中转站」升级成「协作规则制定者」。
 location: 南京

@@ -1,7 +1,7 @@
 ---
 title: 从零搭建 AIGC 视频平台：我为什么选择 FastAPI + Provider 抽象层
 date: 2026-04-23
-tags: [架构设计, FastAPI, AI]
+tags: [AI 创作, 开发实践]
 slug: aigc-platform-dev-log
 summary: 独立开发者自建 AIGC 视频平台的核心架构思路：VideoProvider 抽象层设计、多家视频生成 API 的统一封装、以及开发过程中的真实踩坑记录。
 location: 南京
